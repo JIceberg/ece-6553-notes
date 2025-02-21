@@ -1,0 +1,798 @@
+\documentclass{article}
+
+\usepackage{amsmath, amsthm, amssymb, amsfonts}
+\usepackage{thmtools}
+\usepackage{graphicx}
+\usepackage{setspace}
+\usepackage{geometry}
+\usepackage{float}
+\usepackage{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{framed}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tcolorbox}
+
+\colorlet{LightGray}{White!90!Periwinkle}
+\colorlet{LightOrange}{Orange!15}
+\colorlet{LightGreen}{Green!15}
+
+\newcommand{\HRule}[1]{\rule{\linewidth}{#1}}
+
+\declaretheoremstyle[name=Theorem,]{thmsty}
+\declaretheorem[style=thmsty,numberwithin=section]{theorem}
+\tcolorboxenvironment{theorem}{colback=LightGray}
+
+\declaretheoremstyle[name=Proposition,]{prosty}
+\declaretheorem[style=prosty,numberlike=theorem]{proposition}
+\tcolorboxenvironment{proposition}{colback=LightOrange}
+
+\declaretheoremstyle[name=Principle,]{prcpsty}
+\declaretheorem[style=prcpsty,numberlike=theorem]{principle}
+\tcolorboxenvironment{principle}{colback=LightGreen}
+
+\setstretch{1.2}
+\geometry{
+    textheight=9in,
+    textwidth=5.5in,
+    top=1in,
+    headheight=12pt,
+    headsep=25pt,
+    footskip=30pt
+}
+
+% ------------------------------------------------------------------------------
+
+\begin{document}
+
+% ------------------------------------------------------------------------------
+% Cover Page and ToC
+% ------------------------------------------------------------------------------
+
+\title{ \normalsize \textsc{}
+		\\ [2.0cm]
+		\HRule{1.5pt} \\
+		\LARGE \textbf{\uppercase{ECE 6553 - Optimal Controls}
+		\HRule{2.0pt} \\ [0.6cm] \LARGE{Spring 2025} \vspace*{10\baselineskip}}
+		}
+\date{}
+\author{\textbf{Authors} \\ 
+		Jackson Isenberg \\
+		Erik Verriest}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+% ------------------------------------------------------------------------------
+
+\section{Reachability of Linear Systems}
+
+\subsection{Reachability of an LTI System}
+
+Consider the Linear Time-Invariant (LTI) finite system
+\begin{align*}
+    \dot{x} &= Ax + bu \\
+    y &= cx
+\end{align*}
+with $A \in \mathbb{R}^{n \times n}$, $b \in \mathbb{R}^{n \times 1}$, $c \in \mathbb{R}^{1 \times n}$.
+We define our system to be $\Sigma = (A, b, c)$. The reachability matrix $\mathcal{R}$ is
+\[\mathcal{R}(A, b) = \left[\begin{matrix}
+    b & Ab & \cdots & A^{n-1}b
+\end{matrix}\right]\]
+We determine reachability for the system by looking to see if $\det\mathcal{R}(A,b) \ne 0$.
+In other words, if the reachability matrix is invertible (non-singular), then we have reachability.
+Reachability means that given some initial state, the control system can drive it to
+any other state within its state space.
+
+\noindent
+Say we are given $u(t)$ and $y(t)$ for $t > 0$. Can we find $x(0)$? The observability matrix
+$\mathcal{O}$ is
+\[\mathcal{O}(A, c) = \left[\begin{matrix}
+    c \\
+    cA \\
+    \vdots \\
+    cA^{n-1}
+\end{matrix}\right]\]
+The system is observable if $\det\mathcal{O}(A,c) \ne 0$, which means we would be able to determine
+$x(0)$. observability means that the system's internal state can be fully understood
+with only the external outputs.
+
+\noindent
+However, there is an easier way to determine reachability without computing the reachability matrix.
+The Popov-Belerith-Hautus (PBH) test says that for the augmented matrix
+\[\left[\begin{matrix}
+    sI - A & \mid & b
+\end{matrix}\right] \in \mathbb{R}^{n \times (n+1)}\]
+that we can determine reachability if
+\[\text{rank}\left[\begin{matrix}
+    sI - A & \mid & b
+\end{matrix}\right] = n, \forall s\]
+
+\subsection{Fundamental Realization Theorem}
+
+We can realize a transfer function for an LTI system $\Sigma = (A,b,c)$
+if $(A,b)$ is reachable and $(A,c)$ is observable. This leads to the realization of
+\[H(s) = \frac{b(s)}{a(s)} = \frac{c \text{Adi}(sI - A)b}{\det(sI-A)}\]
+The adioint (or adiugate) matrix for a matrix $A$ is defined as the matrix that satisfies
+\[A^{-1} = \frac{1}{\det(A)}\text{Adi}(A)\]
+and is also the transpose of the cofactor matrix of $A$. The cofactor matrix $C$ of $A$ is defined
+to have the following elements:
+\[C_{ii} = (-1)^{i+i}\det(M_{ii})\]
+where $M_{ii}$ is the minor matrix created by removing the $i$-th row and $i$-th column of $A$.
+So then the adioint matrix would be
+\[\text{Adi}(A)_{ii} = C_{ii} = (-1)^{i+i}\det(M_{ii})\]
+
+\noindent
+The \textit{minimal} realization is when $a(s)$ and $b(s)$ are coprime or relatively prime.
+
+\subsection{Linear Time-Variant Systems}
+
+We have looked at time-invariant systems, but what if the behavior of the system
+also depends on time? Consider the scalar system
+\begin{align*}
+    \dot{x}(t) &= a(t)x(t), \quad x(0) = x_0
+\end{align*}
+We see that
+\[\frac{\dot{x}(t)}{x(t)} = \frac{d}{dt}\ln x(t) = a(t)\]
+\[\ln x(t) - \ln x(0) = \int_{0}^{t}a(\tau)d\tau\]
+\[\ln x(t) = \ln x(0) + \int_{0}^{t}a(\tau)d\tau\]
+\[x(t) = x(0)\exp\int_{0}^{t}a(\tau)d\tau\]
+However, this is only true for the scalar case. For the vector case, the solution
+is more complex:
+\[x(t) = x_0 + x_0\int_{0}^{t}A(\tau)d\tau + x_0\int_{0}^{t}A(\tau)\int_{0}^{\tau}A(\tau_1)d\tau_1d\tau
++ \cdots \]
+Then, for a non-zero initial value, we end up with:
+\[x(t) = x(\tau) + x(\tau)\int_{\tau}^{t}A(\theta)d\theta + \cdots\]
+\[= \phi(t, \tau)x(\tau)\]
+where $\phi(t, \tau)$ is our transition matrix from time $\tau$ to time $t$.
+Now, consider the system
+\begin{align*}
+    \dot{x}(t) &= A(t)x(t) + b(t)u(t)
+\end{align*}
+The solution is then
+\[x(t) = \phi(t,\tau)x(\tau) + \int_{\tau}^{t}\phi(t,\theta)b(\theta)u(\theta)d\theta\]
+
+\subsection{Instantaneous Reachability}
+
+Consider the system
+\[\dot{x}(t) = A(t)x(t) + b(t)\delta(t)\]
+which has impulsive input. We know that $\delta(t) = H'(t)$, so
+\begin{align*}
+    \dot{x}(t) &= A(t)x(t) + b(t)\frac{d}{dt}H(t) \\
+    &= A(t)x(t) + \frac{d}{dt}[b(t)H(t)] - H(t)\frac{d}{dt}b(t) \quad \text{(by product rule)}
+\end{align*}
+\begin{align*}
+    \frac{d}{dt}[x(t)-b(t)H(t)] &= A(t)x(t) - H(t)\frac{d}{dt}b(t) \\
+    &= A(t)[x(t) - b(t)H(t)] + H(t)[A(t)b(t)-\dot{b}(t)]
+\end{align*}
+This is of the form
+\[\frac{d}{dt}z(t) = A(t)z(t) + \text{discontinuous function}\]
+where $z$ is continuous.
+
+\noindent
+From further derivation, we can see that for the system
+\[\dot{x}(t) = A(t)x(t) + b(t)\delta^{(k)}(t)\]
+that
+\[x(0+) = \left([A(t)-D]^k b(t)\right)_{t = 0} + x(0-)\]
+where the operator $(\cdot)_{t=0}$ means evaluated at $t = 0$ and $D$ is the derivative
+operator such that $Df = \dot{f}$. Consider now the input
+\[u(t) = \sum_{i=0}^{N-1}\alpha_i \delta^{(i)},\]
+we get that
+\[x(0+) = x(0-) + \left[b, (A-D)b, (A-D)^2 b, \ldots\right]\left[\begin{matrix}
+    \alpha_0 \\
+    \alpha_1 \\
+    \alpha_2 \\
+    \vdots
+\end{matrix}\right]\]
+So, the infinite reachability matrix is
+\[\mathcal{R}(A,b) = \left[b, (A-D)b, (A-D)^2 b, \ldots\right]\]
+Note that the entries are functions dependent on time $t$, so the time-variant
+reachability also depends on $t$.
+
+\subsection{Finite Time Reachability}
+
+For $t \rightarrow T$,
+\[x_f = x(T) = \phi(T, \tau)x(\tau) + \int_{\tau}^{T}\phi(T,\theta)b(\theta)u(\theta)d\theta\]
+Then, let $u(\theta)$ be of the form
+\[u(\theta) = b(\theta)^\top \phi^\top(T,\theta)q\]
+where $q$ is some unknown constant vector. Our solution becomes
+\[x(T) = \phi(T, \tau)x(\tau) +
+q\int_{\tau}^{T}\phi(T,\theta)b(\theta)b(\theta)^\top\phi^\top(T,\theta)d\theta\]
+We call this the reachability Gramian, defined as
+\[\mathcal{R}_{(t_0, t_f)}(A,b) = \int_{t_0}^{t_f}\phi(t_f,t)b(t)b^\top(t)\phi^\top(t_f,t)dt\]
+The optimal input $u^*(t)$ is the input that will drive our state from $(x_0,t_0) \rightarrow (x_f,t_f)$
+where $t_f > t_0$. We define it as such:
+\[u^*(t) = b^\top(t)\phi^\top(t_f,t)\left[\mathcal{R}_{(t_0, t_f)}(A,b)\right]^{-1}
+(x_f - \phi(t_f,t_0)x_0)\]
+A unique property of this optimal input is that it is the input with minimal energy:
+\[u^*(t) = \min_{u}\mathcal{E}_u\]
+\[\mathcal{E}_u = \frac{1}{2}\int_{t_0}^{t_f}u^2(t)dt\]
+
+\section{Linearization of a Nonlinear System}
+
+Consider the system
+\begin{align*}
+    \dot{x} &= f(x, u) \\
+    y &= h(x, u)
+\end{align*}
+\[x \in \mathbb{R}^{n}, f = \left[\begin{matrix}
+    f_1 \\
+    \vdots \\
+    f_n
+\end{matrix}\right]\]
+We say that $x_e$ is an equilibrium point if $f(x_e, 0) = 0$. Stability of nonlinear
+systems is defined by the stability of the equilibrium points, not of the system itself. But how
+do we find if an equilibrium point is stable or not (i.e., look at the behavior of $\dot{x}$
+around $x_e$)?
+
+\noindent
+We perturb the equilibrium point by a small amount $\tilde{x}$: $x = x_e + \tilde{x}$. Then,
+\[\dot{x} = \dot{x}_e + \dot{\tilde{x}} = f(x_e + \tilde{x}, 0)\]
+Since $\dot{x}_e$ is a constant, the derivative is 0. So,
+\[\dot{\tilde{x}} = f(x_e + \tilde{x}, 0) = f(x_e, 0) +
+\left.\frac{\partial f}{\partial x}\right|_{x_e, 0}\tilde{x} + \text{higher order terms}\]
+where
+\[\frac{\partial f}{\partial x} = \left[\begin{matrix}
+    \frac{\partial f_1}{\partial x_1} & \cdots & \frac{\partial f_1}{\partial x_n} \\[2mm]
+    \vdots & \ddots & \vdots \\[2mm]
+    \frac{\partial f_n}{\partial x_1} & \cdots & \frac{\partial f_n}{\partial x_n}
+\end{matrix}\right]\]
+is the Jacobian. Since $\tilde{x}$ is small, we can rewrite our system as
+\[\dot{\xi} = \left.\frac{\partial f}{\partial x}\right|_{(x_e, 0)}\xi\]
+with $\xi \approx \tilde{x}$. We see that this is a linear time-invariant system. This is an example
+of linearizing a nonlinear system.
+
+\noindent
+Let us look at the behavior of the system around the initial values $(x_0, u_0)$.
+We perturb $x_0$ and $u_0$:
+\begin{align*}
+    x &= x_0 + \tilde{x} \\
+    u &= u_0 + \tilde{u}
+\end{align*}
+So,
+\[\dot{x} = \dot{x}_0 + \dot{tilde{x}} = f(x_0 + \tilde{x}, u_0 + \tilde{u})\]
+\[\dot{\tilde{x}} = f(x_0, u_0) + \left.\frac{\partial f}{\partial x}\right|_{(x_0, u_0)}\tilde{x}
++ \left.\frac{\partial f}{\partial u}\right|_{(x_0, u_0)}\tilde{u} + \text{h.o.t.}\]
+Then our linearized system with $\xi \approx \tilde{x}$ is
+\[\dot{\xi} = \left.\frac{\partial f}{\partial x}\right|_{(x_0(t), u_0(t))}\xi
++ \left.\frac{\partial f}{\partial u}\right|_{(x_0(t), u_0(t))}\tilde{u}\]
+which is a linear time-variant system.
+
+\subsection{Stability of the Equilibrium}
+
+Consider the equilibrium point $(x_e, u_e)$. For input $u(t) = u_e$, we say that
+the equilibrium point is stable if the solution $x(t)$ converges to $x_e$. Let the Jacobian
+$\frac{\partial f}{\partial x}$ evaluated at $(x_e, u_e)$ be the matrix $A$. The linearized system
+is $\dot{\xi} = A\xi$.
+
+\noindent
+If $\text{Re}\lambda(A) < 0$, then $(x_e, u_e)$ is locally asymptotically stable.
+
+\noindent
+If there is an eigenvalue of $A$ with a positive real part, then the equilibrium is locally unstable.
+
+\noindent
+If an eigenvalue of $A$ is purely imaginary, then no conclusion can be drawn.
+
+\subsubsection{Hartman-Grossman Theorem}
+
+The equilibrium $(x_e, u_e)$ for $\dot{x} = f(x, u)$ is said to be \textit{hyperbolic}
+if $\text{Re}\lambda(A) \ne 0$ where $A = \frac{\partial f}{\partial x}$ evaluated at $(x_e, u_e)$.
+
+\begin{theorem}
+    If $(x_e, u_e)$ is a hyperbolic equilibrium, then the global stability of the linearized model
+    implies the local stability of the equilibrium for the nonlinear system.
+\end{theorem}
+
+\section{Parameter Optimization}
+
+Given \[L(x) \in \mathbb{R}, \quad x \in \mathbb{R}^n\] we want to find
+the optimal parameter $x^*$ such that $L(x^*)$ is an extremum. The things we have to investigate
+to do this are:
+\begin{enumerate}
+    \item Existence: ``Does an extremum even exist?''
+    \item Uniqueness: Guarantee that different methods converge to the same solution
+    \item Sufficient conditions: If they are satisfied, we can say we have an extremum
+    \item Necessary conditions: Must be satisfied but do not guarantee an extremum
+    \item Computation methods
+\end{enumerate}
+
+\subsection{Computational Methods}
+
+\subsubsection{Geometric Methods}
+
+\subsubsection{Algebraic Methods}
+
+The algebraic-geometric mean inequality says that for $x_i > 0$ for $i = 1,\ldots,n$,
+the arithmetic mean (AM) is
+\[\text{AM}\{x_i\} = \frac{1}{n}\sum_{i=1}^{n}x_i\]
+and the geometric mean (GM) is
+\[\text{GM}\{x_i\} = \left(\prod_{i=1}^{n}x_i\right)^\frac{1}{n}\]
+which follow the following inequality:
+\[\text{AM}\{x_i\} \ge \text{GM}\{x_i\}\]
+The quadratic mean (QM) is
+\[\text{QM}\{x_i\} = \sqrt{\frac{1}{n}\sum_{i=1}^{n}x_i^2}\]
+and then $\text{AM}\{x_i\} \le \text{QM}\{x_i\}$.
+Finally, the harmonic mean (HM) is
+\[\text{HM}\{x_i\} = \left[\frac{1}{n}\sum_{i=1}^{n}\frac{1}{x_i}\right]^{-1}\]
+It holds that
+\[0 < \text{HM} \le \text{GM} \le \text{AM} \le \text{QM}\]
+\textbf{Matrix Inequalities:}
+
+\noindent
+Let $A \in \mathbb{R}^{n\times n}$ be a matrix. Then let
+\[A_s = \frac{A+A^\top}{2}\]
+\[A_A = \frac{A-A^\top}{2}\]
+then, $A_s^\top = A_s$ and $A_A^\top = -A_A$.
+
+\noindent
+Now we look at the quadratic form. Let $P$ be a symmetric matrix.
+\[x^\top Px, \quad x \in \mathbb{R}^{n}\]
+Note the properties:
+\[x^\top Ax = x^\top A_s x\]
+\[x^\top A_A x = 0\]
+Consider:
+\[\min_{\|x\|=1}x^\top Px =\text{ ?}\]
+Recall that
+\[P = V\Lambda V^{-1} = V\Lambda V^\top\]
+Then,
+\[x^\top Px = x^\top V\Lambda V^\top x\]
+Let $y = V^\top x$:
+\[x^\top V\Lambda V^\top x = y^\top \Lambda y = \sum_{i=1}^{n}y_i^2\lambda_i\]
+Note that
+\[\|y\|^2 = y^\top y = x^\top V V^\top x = x^\top x = \|x\|^2\]
+so length does not change. Therefore if $\|x\| = 1$, then $\|y\| = 1$.
+So,
+\[\min_{\|x\|=1}x^\top Px = \min_{\|y\|=1}y^\top \Lambda y =\text{ minimum eigenvalue of }P\]
+\begin{theorem}
+    Courant-Fisher Theorem\\[2mm]
+    Consider that $x \perp \text{span}\{w_1,\ldots,w_{n-k}\}$, then
+    \[\max_{\|x\|=1}x^\top Px = \lambda_k\]
+\end{theorem}
+
+\subsubsection{Analytic Methods}
+
+\begin{theorem}
+    Extreme Value Theorem\\[2mm]
+    If $f$ is continuous with mapping from a compact (closed and bounded) set to $\mathbb{R}$, then
+    $f$ will always have a maximum and a minimum.
+\end{theorem}
+\noindent
+A counterexample is seen by considering $f(t) = e^t$ in the domain $(a, b)$
+where $\infty < a < b < \infty$. Then $e^a < e^t, \forall t \in (a, b)$.
+We say that $e^a$ is the infimum of $\{e^t\}$ in $(a,b)$.
+
+\noindent
+\textbf{Weistrass's Theorem:}
+
+\noindent
+For the 1-D case:
+\begin{enumerate}
+    \item Consider the necessary conditions for extremum in $[a, b]$
+    \item The sufficient conditions for a local minimum at $x^* \in [a, b]$ are:
+    \[f'(x^*) = 0\]
+    \[f''(x^*) > 0\text{ if }x^*\text{ is in the interior }(a, b)\]
+    \[\text{if }x^* = a \rightarrow f'(x^*) \ge 0, f''(x^*) > 0\]
+    \item Existence: we see that if $f$ is continuous in $[a,b]$, then there must be a minimum
+    \item Unique if $f$ is strictly convex, it as a minimum at a unique point in $[a,b]$
+\end{enumerate}
+\textbf{Derivatives with respect to Matrices:}
+
+\noindent
+Consider
+\[L : \mathbb{R}^{n\times m} \rightarrow \mathbb{R}\]
+\[L(X) = \text{Tr}(AX)\]
+where $\text{Tr}$ is the trace function:
+\[\text{Tr}(M) = \sum_{i=1}^{n}M_{ii}\]
+with properties
+\[\text{Tr}(M^\top) = \text{Tr}(M)\]
+\[\text{Tr}(ABC) = \text{Tr}(BCA) = \text{Tr}(CAB)\]
+Then,
+\[\text{Tr}(AX) = \sum_{i=1}^{n}(AX)_{ii} = \sum_{i=1}^{m}\sum_{i=1}^{n}A_{ii}X_{ii}\]
+The derivative with respect to $X$ is a matrix with elements
+\[\left(\frac{\partial L}{\partial X}\right)_{ii} = \frac{\partial L}{\partial X_{ii}}\]
+So,
+\begin{align*}
+    \left(\frac{\partial}{\partial X}\text{Tr}(AX)\right)_{ii} &=
+    \frac{\partial}{\partial X_{ii}}\text{Tr}(AX) \\
+    &= \frac{\partial}{\partial X_{ii}}\sum_{\alpha=1}^{m}
+    \sum_{\beta=1}^{n}A_{\alpha\beta}X_{\beta\alpha} \\
+    &= \sum_{\alpha=1}^{m}\sum_{\beta=1}^{n}A_{\alpha\beta}
+    \frac{\partial X_{\beta\alpha}}{\partial X_{ii}} \\
+\end{align*}
+We then introduce the Kronecker Delta:
+\[\delta_{\alpha\beta} = \begin{cases}
+    1, & \alpha = \beta \\
+    0, & \text{otherwise}
+\end{cases}\]
+Then,
+\begin{align*}
+    \left(\frac{\partial}{\partial X}\text{Tr}(AX)\right)_{ii} &=
+    \sum_{\alpha=1}^{m}\sum_{\beta=1}^{n}A_{\alpha\beta}\delta_{\beta i}\delta_{\alpha i} \\
+    &= \sum_{\beta=1}^{n}A_{i\beta}\delta_{b\beta i} \\
+    &= A_{ii}
+\end{align*}
+
+\subsubsection{Numerical Methods}
+
+\subsection{Parameter Optimization with Equality Constraints}
+
+We define a problem with equality constraints to be one where
+we want to find an extremum for $L(x)$ with constraint $f(x) = 0$. For example,
+say there is a constraint that $x_1 = x_2$. Then, $f(x) = x_1 - x_2 = 0$ is our constraint.
+
+\noindent
+Let $L : \mathbb{R}^n \rightarrow \mathbb{R}$ be the function to be minimized.
+We want to find $x^*$ such that $L(x^*)$ is minimal and $f(x^*) = 0$ with
+$f : \mathbb{R}^n \rightarrow \mathbb{R}^m$ and $m < n$. We define $x$ to be
+\[x = \left[\begin{matrix}
+    x_1 \\ \vdots \\ x_n
+\end{matrix}\right] = \left[\begin{matrix}
+    y_1 \\ \vdots \\ y_m \\ u_1 \\ \vdots \\ u_{n-m}
+\end{matrix}\right]\]
+Then,
+\[dL(x) = \partial L(y,u) = \frac{\partial L}{\partial y}dy + \frac{\partial L}{\partial u}du\]
+\[= \left(\frac{\partial L}{\partial u}-\frac{\partial L}{\partial y}
+\left(\frac{\partial f}{\partial y}\right)^{-1}\frac{\partial f}{\partial u}\right)du\]
+We want this to be 0. We define
+\[\lambda^\top = -\frac{\partial L}{\partial y}\left(\frac{\partial f}{\partial y}\right)^{-1}\]
+These are the Lagrange multipliers. Our optimization goal becomes
+\[\frac{\partial L}{\partial u}+\lambda^\top\frac{\partial f}{\partial u} = 0\]
+We define the Hamiltonian $H$ to be
+\[H = L + \lambda^T f\]
+so that the optimization target (sufficient conditions) is
+\[\frac{\partial H}{\partial u} = 0, \frac{\partial H}{\partial \lambda} = 0\]
+With the necessary conditions
+\[\frac{\partial H}{\partial x} = 0 \rightarrow \frac{\partial H}{\partial y} = 0,
+\frac{\partial H}{\partial u} = 0\]
+Example Problem:
+
+\noindent
+Let $L(x) = x_1^2 - x_2$ with the constraint $x_1 = x_2 + 1$.
+
+\noindent
+Then, $f(x) = x_1 - x_2 - 1$. So, our Hamiltonian is
+\[H = L + \lambda^\top f = x_1^2 - x_2 + \lambda(x_1-x_2-1)\]
+The necessary conditions are
+\[\frac{\partial H}{\partial x_1} = 2x_1 + \lambda = 0 \rightarrow x_1 = -\frac{\lambda}{2}\]
+\[\frac{\partial H}{\partial x_2} = -1 - \lambda = 0 \rightarrow \lambda = -1\]
+So, $x_1 = \frac{1}{2}$. Then, we look at our constraint:
+\[\frac{\partial H}{\partial \lambda} = x_1 - x_2 - 1 = 0 \rightarrow x_2 = x_1 - 1\]
+So, $x_2 = -\frac{1}{2}$. Then, our optimal solution is
+\[x^* = \left(\frac{1}{2},-\frac{1}{2}\right)\]
+
+\subsection{Parameter Optimization with Inequality Constraints}
+
+Instead of $f(x) = 0$, our problem becomes finding an extremum $x^*$ of $L(x)$
+such that $f(x^*) \le 0$. Our Hamiltonian is
+\[H = L + \mu^\top f\]
+where $\mu \ge 0$. For this, we have to note the idea of inactive and active
+constraints. A constraint is inactive if the extremum of the function already
+satisfies $f(x) \le 0$. A constraint is active if the extremum lies in $f(x) > 0$
+so we have to find the next smallest/largest value that does satisfy $f(x) \le 0$.
+When solving for a parameter optimization problem like this, we look at each possible combination
+of inactive and active constraints. For example, if there are two constraints,
+we look at the cases where (a) no constraints are active, (b) the first constraint is active,
+(c) the second constraint is active, (d) both constraints are active.
+
+\noindent
+Example Problem:
+
+\noindent
+Let $L(x) = x_1^2 - x_2$ with the constraints $x_2 \le x_1$ and $x_1 \ge 0$.
+
+\noindent
+We will define our constraint function $f$ to be
+\[f(x) = \left(\begin{matrix}
+    x_2 - x_1 \\
+    -x_1
+\end{matrix}\right) \le 0\]. So, our Hamiltonian is
+\[H = L + \mu^\top f = x_1^2 - x_2 + \mu_1(x_2-x_1) + \mu_2(-x_1)
+= x_1^2 - x_2 + \mu_1(x_2-x_1) - \mu_2x_1\]
+The necessary conditions are
+\[\frac{\partial H}{\partial x_1} = 2x_1 - \mu_1 - \mu_2 = 0 \rightarrow x_1 = \frac{\mu_1+\mu_2}{2}\]
+\[\frac{\partial H}{\partial x_2} = -1 + \mu_1 = 0 \rightarrow \mu_1 = 1\]
+We see that
+\[x_1 = \frac{1+\mu_2}{2}\]
+We then look at our constraints.
+\begin{enumerate}
+    \item Assume no constraints are active ($\mu_1 = \mu_2 = 0$)
+
+    \noindent
+    We know this cannot be the case because $\mu_1 = 1$ must be held. So, the first constraint
+    needs to be considered.
+    \item Assume the first constraint is active ($\mu_2 = 0$)
+
+    \noindent
+    Then, $x_1 = \frac{1}{2}$. We then look at our condition:
+    \[\frac{\partial H}{\partial \mu_1} = x_1 - x_2 = 0\]
+    So, $x_1 = x_2$ and therefore our optimal solution is
+    \[x^* = \left(\frac{1}{2},\frac{1}{2}\right)\]
+    which we see has $L(x_1,x_2) = \frac{1}{4} - \frac{1}{2} = -\frac{1}{4}$.
+    \item Assume the second constraint is active ($\mu_1 = 0$)
+
+    \noindent
+    We know this cannot be the case because $\mu_1 = 1$ must be held. So, the first constraint
+    needs to be considered.
+    \item Assume both constraints are active.
+    
+    \noindent
+    Since both constraints are active, then
+    \[\frac{\partial H}{\partial \mu_1} = x_1 - x_2 = 0 \rightarrow x_1 = x_2\]
+    \[\frac{\partial H}{\partial \mu_2} = -x_1 = 0 \rightarrow x_1 = 0\]
+    So, $x_1 = x_2 = 0$ is the optimal solution here, with $L(0,0) = 0$.
+\end{enumerate}
+Knowing our two optimal solutions for the different cases, we see that $(1/2, 1/2)$
+produces a more minimal point than $(0,0)$.
+
+\section{Introduction to Optimal Control}
+
+\subsection{Discrete Optimal Control}
+
+Consider the discrete system
+\[x_{k+1} = f(x_k, u_k), \quad x_0\text{ given }\]
+with $k = 1,\ldots,N$. The optimization problem then is to find
+\[\min_{\{u_k\}} \phi(x_N) + \sum_{k=0}^{N-1}L(x_k,u_k) = J(u_0,\ldots,u_N)\]
+The direct solution is
+\[x_k = X_k(u_0, u_1, \ldots, u_{k-1})\]
+
+\subsubsection{One-Stage Optimal Control}
+
+\[x_1 = f(x_0,u_0),\quad x_0\text{ given}\]
+\[\min_{u_0}\left[\phi(x_1) + L(x_0,u_0)\right] = \min_{u_0,x_1}J(u_0,x_1)\]
+Re-organize the Lagrange multiplier:
+\[\bar{J} = J + \lambda_1^\top(f(x_0,u_0)-x_1)\]
+which works because $x_1 = f(x_0,u_0)$, so this should evaluate to $\bar{J} = J$ optimally.
+\[\bar{J} = \phi(x_1) + L(x_0,u_0) + \lambda_1^\top f(x_0,u_0) - \lambda_1^\top x_1\]
+We notice that there is a Hamiltonian there:
+\[H(x_0,u_0,\lambda_1) = L(x_0,u_0) + \lambda_1^\top f(x_0,u_0)\]
+We then assume that $u_0^*$ is the optimum which produces the corresponding state update $x_1^*$.
+Perturbing the system, we end up with
+\[dJ = \left.\frac{\partial H}{\partial u}\right|_{x_1^*,u_0^*}du_0\]
+Since the necessary condition for optimality is that the perturbation $dJ$ is zero, we
+see then that it must hold that
+\[\frac{\partial H}{\partial u} = 0\]
+
+\subsubsection{Multi-Stage Optimal Control}
+
+Consider the system
+\[x_{k+1} = f_k(x_k, u_k), \quad x_0\text{ given }\]
+with $k = 1,\ldots,N$. The performance index ($J$) is
+\[J = \phi(x_N) + \sum_{k=0}^{N-1}L_k(x_k,u_k)\]
+Following the same steps as with the one-stage optimal control, we end up with the perturbation
+\[dJ = \sum_{k=0}^{N-1}\frac{\partial H_k}{\partial u_k}du_k\]
+which should be 0. Which means that
+\[\frac{\partial H_k}{\partial u_k} = 0\]
+We also have the Lagrange multipliers
+\[\lambda_k = \left(\frac{\partial H_k}{\partial x_k}\right)^\top,\quad
+\lambda_N = \left(\frac{\partial\phi}{\partial x}\right)^\top\]
+Note that we define the Hamiltonian to be
+\[H_k = L_k + \lambda_{k+1}^\top f_k\]
+Our system then has the costate equation of
+\[\lambda_k^\top = \frac{\partial L_k}{\partial x_k} + \lambda_{k+1}^\top\frac{\partial f}{\partial x_k}\]
+This means our state and costate equations are coupled in such a way that we would call this a
+Two Point Boundary Value Problem. These are not relatively easy to solve.
+
+\subsection{Calculus of Variations}
+
+We cannot use this concept for systems in continuous time, so we introduce the concept of
+calculus of variations. Let there be a performance index
+\[J = \int_{x_0}^{x_1}F(x,y,y')dx\]
+Why have the derivative $y'$ in the function? Without it, finding the optimum becomes a
+much simpler problem. However, if we add constraints, then the optimal solution falls apart.
+We need the derivative of $y$ so that we can guarantee that the boundary conditions are satisfied.
+
+\noindent
+We introduce an arbitrary function $\eta(x)$ which is continuous and differentiable in $[x_0, x_1]$.
+Suppose then that $y^*(x)$ is the optimal solution. We perturb as such:
+\[y(x) = y^*(x) + \epsilon\eta(x)\]
+where $\epsilon$ is positive but goes to 0 (arbitrarily small).
+Then the derivative is
+\[y'(x) = y^{*'}(x) + \epsilon\eta'(x)\]
+Our performance index (depending on $\epsilon$) is
+\[J(\epsilon) = \int_{x_0}^{x_1}F(x,y^*(x)+\epsilon\eta(x),y^*(x')+\epsilon\eta'(x))\]
+Now, let $\eta(x_0) = \eta(x_1) = 0$. Doing a Taylor expansion, we end up with the equation
+\[\frac{\partial F}{\partial y} - \frac{d}{dx}\frac{\partial F}{\partial y'} = 0\]
+which is the condition for optimality for $y^*(x)$. This is called the Euler-Lagrange equation.
+\begin{theorem}
+    Fundamental Lemma of Calculus of Variations\\[2mm]
+    If $\varphi(t)$ is continuous in $[t_0,t_1]$ and if for all $\eta(t) \in C^1$ such that
+    $\eta(t_0) = \eta(t_1) = 0$
+    \[\int_{t_0}^{t_1}\eta(t)\varphi(t)dt = 0,\]
+    then it must hold that
+    \[\varphi(t) \equiv 0.\] 
+\end{theorem}
+
+\subsection{Optimal Controls with No Constraints}
+
+Let our control problem be
+\[\arg\min_{u(\cdot)}\int_{0}^{T}L(x(t),u(t),t)dt + \phi(x(T))\]
+such that
+\[\dot{x}(t) = f(x(t),u(t),t)\]
+with $T < \infty$ being fixed. We can rewrite $L$ to be
+\[L(x,u,t) = L(x,u,t) + \lambda^\top(t)(f(x,u,t)-\dot{x}) = H(x,u,t,\lambda)-\lambda\dot{x}\]
+Then our performance index is
+\[J = \phi(x(T)) + \int_{0}^{T}[H(x,u,t,\lambda)-\lambda\dot{x}]dt\]
+which then can be rewritten as
+\[J = \int_{0}^{t}[H + \dot{\lambda}^\top x]dt + \phi(x(T)) - \lambda^\top(T)x(T) + \lambda^\top(0)x(0)\]
+Through this we end up with
+\[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right)^\top,\quad
+\lambda(T) = \left(\frac{\partial\phi}{\partial x}\right)^\top\]
+which is our Euler-Lagrange equation.
+
+\section{Optimal Control in Continuous Time}
+
+Through everything we have gone through already, we can set up the simplest problem to have
+the state equation
+\[\dot{x} = f(x,u,t),\quad x_0, T\]
+for its dynamics and the performance index
+\[J = \phi(x(T)) + \int_{0}^{T}L(x,u,t)dt\]
+To solve the problem we look at the
+\begin{enumerate}
+    \item Hamiltonian: \[H(x,u,\lambda,t) = L(x,u,t) + \lambda^\top f(x,u,t)\]
+    \item Optimality Condition (O.C.): \[\frac{\partial H}{\partial u} = 0\]
+    \item Euler-Lagrange Equation (E.L.):
+    \[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right)^\top,
+    \quad\lambda(T) = \left(\frac{\partial\phi}{\partial x}\right)^\top\]
+    \item State Equation (S.E.):
+    \[\dot{x} = \left(\frac{\partial H}{\partial \lambda}\right)^\top, \quad x(0) = x_0\]
+\end{enumerate}
+Simple Example:
+
+\noindent
+Consider the scalar linear system
+\[\dot{x} = ax + bu\]
+with the performance index
+\[J = \frac{1}{2}\int_{0}^{T}(x^2+\rho u^2)dt\]
+The Hamiltonian is
+\[H = \frac{1}{2}x^2 + \frac{\rho}{2}u^2 + \lambda(ax + bu)\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = \rho u + b\lambda = 0\]
+\[u = -\frac{b}{\rho}\lambda\]
+The Euler-Lagrange equation is
+\[\dot{\lambda} = -(x + a\lambda)\]
+\[\lambda(T) = 0\]
+Plugging everything back into our state equation:
+\[\dot{x} = ax + b\left(-\frac{b}{\rho}\lambda\right)\]
+We can set up an equation like so:
+\[\left[\begin{matrix}
+    \dot{x} \\
+    \dot{\lambda}
+\end{matrix}\right] = \left[\begin{matrix}
+    a & -\frac{b^2}{\rho} \\[2mm]
+    -1 & -a
+\end{matrix}\right]\left[\begin{matrix}
+    x \\ \lambda
+\end{matrix}\right] = M\left[\begin{matrix}
+    x \\ \lambda
+\end{matrix}\right]\]
+Then, we see that
+\[\left[\begin{matrix}
+    x(t) \\
+    \lambda(t)
+\end{matrix}\right] = e^{Mt}\left[\begin{matrix}
+    x_0 \\ \lambda(0)
+\end{matrix}\right]\]
+Then,
+\[\left[\begin{matrix}
+    x(T) \\
+    \lambda(T)
+\end{matrix}\right] = \left[\begin{matrix}
+    x(T) \\ 0
+\end{matrix}\right] = e^{MT}\left[\begin{matrix}
+    x_0 \\ \lambda(0)
+\end{matrix}\right]\]
+\[\left[\begin{matrix}
+    x_0 \\ \lambda(0)
+\end{matrix}\right] = e^{-MT}\left[\begin{matrix}
+    x(T) \\ 0
+\end{matrix}\right]\]
+Our unknowns are $\lambda(0)$ and $x(T)$ which we will have to find. Doing this
+will let us then solve for $x(t)$ and $\lambda(t)$ at any time $t$. This is the hardest part
+of solving an optimal control problem.
+
+\subsection{O.C. with (Some) Specified States at a Final Time}
+
+Let us consider the problem where we have the dynamics
+\[\dot{x} = f(x,u,t)\]
+\[\dim(x) = n\]
+with
+\[(x_1(T),\ldots,x_p(T)),\quad p \le n\]
+prescribed.
+When we go through our optimal control problem and look at the perturbations to see how we
+can find the optimum, we end up with
+\[\delta J = \int_{0}^{T}\frac{\partial H}{\partial u}\delta u dt = 0\]
+Normally, since $\delta u$ is arbitrary due to us not having specified final states,
+we can iust say that $\frac{\partial H}{\partial u} = 0$. However, $\delta u$ might affect
+the end states, so it can no longer be arbitrary. Therefore, we can no longer have that
+optimality condition. We must compute the influence of $\delta u$ on $\delta x_i(T)$ ($i = 1,...,p$).
+We specify that our overall Hamiltonian for the problem (finding extremum of performance index
+$J$) is
+\[H^{(J)} = L + (\lambda^{(J)})^\top f\]
+Our Langrange multipliers $\lambda^{(J)}$ for this problem. We then want to
+find how our perturbations affect the final states. We look at:
+\[\bar{x}_i(T) = x_i(T) + \int_{0}^{T}(\lambda^{(i)})^\top(f(x,u,t)-\dot{x})dt\]
+Where $\lambda^{(i)}$ is completely free. We define the Hamiltonian for this subproblem to be
+\[H^{(i)} = (\lambda^{i})^\top f\]
+Our choice of $\lambda^{(i)}$ satisfies its Euler-Lagrange equation:
+\[\dot{\lambda}^{(i)} = -\left(\frac{\partial H^{(i)}}{\partial x}\right)^\top\]
+\[\lambda^{(i)}(T) = \frac{\partial x_i(T)}{\partial x} = e_i\]
+where $e_i$ is the $i$-th column of the identity matrix. We end up with the necessary condition
+\[\delta x_i(T) = \int_{0}^{T}(\lambda^{(i)})^\top \frac{\partial f}{\partial u}\delta u\text{ }dt
+= \int_{0}^{T}\frac{\partial H^{(i)}}{\partial u}\delta u\text{ }dt = 0\]
+The trick is then to let our optimal $\delta u$ be
+\[\delta u^{*}(\nu_1,\ldots,\nu_p,k) = k\left[\frac{\partial H^{(J)}}{\partial u} +
+\sum_{i=1}^{p}\left(\frac{\partial H^{(i)}}{\partial u}\right)^\top \nu_i\right]\]
+The new problem is now to find $\nu$ such that the final state constraints are satisfied.
+\[\delta x_i(T) = k\int_{0}^{T}(\lambda^{(i)})^\top \frac{\partial f}{\partial u}
+\left[\frac{\partial H^{(J)}}{\partial u} +
+\sum_{i=1}^{p}\left(\frac{\partial f}{\partial u}\right)^\top\lambda^{(i)} \nu_i\right]dt\]
+We set $\delta x_i(T) = 0$, which is our obiective. Therefore, $k$ is irrelevant.
+We say that
+\[q_i = \int_{0}^{T}(\lambda^{(i)})^\top\frac{\partial f}{\partial u}
+\left(\frac{\partial H^{(J)}}{\partial u}\right)^\top dt\]
+\[Q_{ii} = \int_{0}^{T}(\lambda^{(i)})^\top\left(\frac{\partial f}{\partial u}\right)
+\left(\frac{\partial f}{\partial u}\right)^\top\lambda^{(i)}dt\]
+So that our problem becomes
+\[\delta x_i(T) = q_i + \sum_{i=1}^{p}Q_{ii}\nu_i = q_i + Q_i\nu = 0\]
+Therefore, we can solve for $\nu$:
+\[\nu = -Q^{-1}q\]
+Note that $Q$ must be symmetric and invertible. We see that $Q$ is also the Reachability Gramian.
+Basically, our problem hinges on $Q$ not having a zero eigenvalue. If $\det Q = 0$, then
+there is no solution to the problem. In other words, if our system is not reachable, we are unable
+to reach those final state conditions. If $Q$ satisfies these conditions, then $\delta x_i(T) = 0$
+is guaranteed.
+
+\noindent
+From this, we get
+\[\delta J = \int_{0}^{T}\|\delta u^*\|^2dt = 0\]
+so our condition is now that $\delta u^*(\nu^*, k) = 0$
+
+\noindent
+We can produce a super Hamiltonian for the overall problem:
+\begin{align*}
+    H^\text{super} &= H^{(J)} + \sum_{i=1}^{p}\nu_i H^{(i)} \\
+    &= L + (\lambda^{(J)})^\top f + \sum_{i=1}^{p}(\lambda^{(i)})^\top f \nu_i \\
+    &= L + \left[\lambda^{(J)} + \sum_{i=1}^{p}\nu_i \lambda^{(i)}\right]^\top f
+\end{align*}
+So we can say we also have a super Langrange multiplier
+\[\lambda^\text{super} = \lambda^{(J)} + \sum_{i=1}^{p}\nu_i \lambda^{(i)}\]
+so that
+\[H^\text{super} = L + \lambda^\text{super}f\]
+and then our optimality condition boils down to
+\[\frac{\partial H^\text{super}}{\partial u} = 0\]
+Example:
+
+\[\dot{x} = x + u, \quad x(0) = 0 \rightarrow x(1) = 1\]
+Our goal is to find the minimal energy
+\[J = \frac{1}{2}\int_{0}^{T}u^2 dt\]
+The Hamiltonian is
+\[H = \frac{1}{2}u^2 + \lambda(x + u)\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = 0 \rightarrow u = -\lambda\]
+The Euler-Lagrange equation says
+\[\dot{\lambda} = -\lambda\]
+Now, how do we find the final $\lambda$? Originally, the final $\lambda$ is
+\[\lambda(T) = \left(\frac{\partial\phi}{\partial x}\right)^\top\]
+However, in this case, it also depends on $x$. So, we create an expression:
+\[\psi = \phi + \nu x\]
+and then say that
+\[\lambda(T) = \left(\frac{\partial\psi}{\partial x}\right)^\top\]
+In this problem, $\phi = 0$, so
+\[\lambda(T) = \frac{\partial}{\partial x}(\nu x) = \nu\]
+We see then that
+\[\lambda(t) = e^{T-t}\nu\]
+We then plug this back into our state equation:
+\[\dot{x} = x + u = x - e^{T-t}\nu\]
+which produces
+\[x(t) = e^t x(0) - \int_{0}^{t}e^{t-\tau}e^{T-\tau}\nu\text{ }d\tau = -\nu e^T \sinh(t)\]
+Then,
+\[x(T) = 1 = \nu e^T \sinh(T)\]
+\[\nu = -\frac{e^{-T}}{\sinh(T)}\]
+So,
+\[u^*(t) = -\lambda(t) = -e^{T-t}\nu = e^{T}e^{-t}\frac{e^{-T}}{\sinh(T)} = \frac{e^{-t}}{\sinh(T)}\]
+
+\end{document}
