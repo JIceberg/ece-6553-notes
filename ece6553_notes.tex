@@ -795,4 +795,1191 @@ Then,
 So,
 \[u^*(t) = -\lambda(t) = -e^{T-t}\nu = e^{T}e^{-t}\frac{e^{-T}}{\sinh(T)} = \frac{e^{-t}}{\sinh(T)}\]
 
+\subsection{O.C. with an Unknown Final Time}
+
+Because the time $T$ is also unknown, we need another necessary condition
+to solve the problem. Consider the general Bolza problem:
+\[\dot{x} = f(x,u),\quad x(0) = x_0\]
+Find
+\[\min_{u,T}\int_{0}^{T}L(x,u)dt + \phi(x(T),T)\]
+Let $(T, x(T))$ satisfy some manifold (smooth) condition
+\[\psi(T,x(T)) = 0\]
+The solution to the Bolza problem then utilizes the Hamiltonian and the manifold constraint:
+\[H = L + \lambda^\top f\]
+\[\Psi = \phi + \nu^\top\psi\]
+We introduce a new condition called the \textbf{transversality condition}
+\[H + \left.\frac{\partial\Psi}{dt}\right|_{t=T} = 0\]
+to help us find the final time $T$. Note that $H$ is a constant, so it does not depend on $t$.
+
+\noindent
+Example:\\[2mm]
+Consider the dynamics
+\[\dot{x} = u,\quad x(0) = 0\]
+We want to minimize the cost
+\[J = \frac{1}{2}\int_{0}^{T}(x^2+u^2)dt + \frac{\rho}{2}\left[(T-1)^2+(x-1)^2\right]\]
+for some $T > 0$. Then,
+\[H = \frac{1}{2}(x^2+u^2) + \lambda u\]
+\[\Psi = \frac{\rho}{2}\left[(t-1)^2+(x-1)^2\right]\]
+because we have a final cost $\phi$ but no manifold condition.
+
+\noindent
+Optimality Condition:
+\[\frac{\partial H}{\partial u} = 0
+\rightarrow u + \lambda = 0\]
+\[u(t) = -\lambda(t)\]
+Euler-Lagrangian:
+\[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right) = -x\]
+\[\lambda(T) = \left.\frac{\partial\psi}{\partial x}\right|_{t=T} = \rho(x(T)-1)\]
+State Equation:
+\[\dot{x} = u = -\lambda = x(0) + \int_{0}^{t}x(\tau)d\tau\]
+\[\ddot{x} = x\]
+\[x(t) = A\sinh(t) + B\cosh(t)\]
+Use initial condition to restrict further:
+\[x(0) = A\sinh(0) + B\cosh(0) = B = 0\]
+\[x(t) = A\sinh(t)\]
+We see that
+\[\lambda(t) = -\left[x(0) + \int_{0}^{t}x(\tau)d\tau\right]\]
+\[\lambda(t) = -\int_{0}^{t}A\sinh(\tau)d\tau\]
+\[\lambda(t) = -A\cosh(t)\]
+At final time $T$,
+\[\lambda(T) = -A\cosh(T) = \rho(A\sinh(T)-1)\]
+Then,
+\[A = \frac{\rho}{\rho\sinh(T)+\cosh(T)}\]
+So,
+\[x(t) = \frac{\rho\sinh(t)}{\rho\sinh(T)+\cosh(T)}\]
+\[u(t) = -\lambda(t) = \frac{\rho\cosh(t)}{\rho\sinh(T)+\cosh(T)}\]
+Transversality Condition:
+\[H + \left.\frac{\partial\Psi}{\partial t}\right|_{t=T} = 0\]
+\[H = \frac{1}{2}\frac{\rho^2}{(\rho\sinh(T)+\cosh(T))^2}\left(\sinh^2(t)+\cosh^2(t)\right)
++ \lambda u\]
+\[= \frac{1}{2}\frac{\rho^2}{(\rho\sinh(T)+\cosh(T))^2}\left(\sinh^2(t)+\cosh^2(t)\right)
+- \frac{\rho^2}{(\rho\sinh(T)+\cosh(T))^2}\cosh^2(t)\]
+\[= \frac{1}{2}\frac{\rho^2}{(\rho\sinh(T)+\cosh(T))^2}\left(\sinh^2(t)-\cosh^2(t)\right)\]
+\[= -\frac{\rho^2}{2(\rho\sinh(T)+\cosh(T))^2}\]
+which we see is a constant.
+\[\frac{\partial\Psi}{\partial t} = \rho(t-1) \rightarrow \rho(T-1)\]
+Then,
+\[-\frac{\rho^2}{2(\rho\sinh(T)+\cosh(T))^2} + \rho(T-1) = 0\]
+\[\rho = 2(T-1)(\rho\sinh(T)+\cosh(T))^2\]
+Then analyze this to see that as $\rho$ grows, our $T$ asymptotically approaches
+$T = 1$ which is our minimal $T$.
+
+\section{Optimal Control with Path Constraints}
+
+\subsection{Integral Constraints}
+Consider the Bolza problem with an additional constraint
+\[I = \int_{0}^{T}N(x,u,t)dt\]
+where $N$ may have many components. We then extend the state to
+\[x^\text{ext} = \left[\begin{matrix}
+    x \\ y
+\end{matrix}\right]\]
+where
+\[y(t) = \int_{0}^{t}N(x,u,\tau)d\tau\]
+The state equation then becomes
+\[\frac{d}{dt}x^\text{ext} = \left[\begin{matrix}
+    f(x,u,t) \\
+    N(x,u,t)
+\end{matrix}\right] = F(x^\text{ext},u,t)\]
+with final state condition
+\[x^\text{ext}(T) = \left[\begin{matrix}
+    x(T) \\
+    I
+\end{matrix}\right]\]
+where $x(T)$ might be unknown.
+The Hamiltonian becomes
+\begin{align*}
+    H_\text{ext} &= L(x,u,t) + \lambda_\text{ext}^\top F(x^\text{ext},u,t) \\
+    &= L(x,u,t) + \lambda^\top f(x,u,t) + \lambda_y^\top N(x,u,t) \\
+    &= H_\text{old} + \lambda_y^\top N(x,u,t)
+\end{align*}
+So, we see we've simply just added an additional term to the original Hamiltonian and
+therefore can affect the optimal control. The optimality condition becomes
+\[\frac{\partial}{\partial u}H_\text{ext} + \frac{\partial}{\partial u}H_\text{old}
++ \frac{\partial}{\partial u}N(x,u,t) = 0\]
+The Euler-Lagrangian produces
+\[\left[\begin{matrix}
+    \dot{\lambda} \\
+    \dot{\lambda}_y
+\end{matrix}\right] = -\frac{\partial H_\text{ext}}{\partial x^\text{ext}}
+= \left[\begin{matrix}
+    -\frac{\partial H_\text{ext}}{\partial x} \\[2mm]
+    -\frac{\partial H_\text{ext}}{\partial y}
+\end{matrix}\right] = \left[\begin{matrix}
+    -\left(\frac{\partial H_\text{old}}{\partial x}+\lambda_y\frac{\partial N}{\partial x}\right) \\[2mm]
+    0
+\end{matrix}\right]\]
+\begin{align*}
+    \dot{\lambda} &= -\frac{\partial H_\text{old}}{\partial x} - \lambda_y\frac{\partial N}{\partial x} \\
+    \dot{\lambda}_y &= 0
+\end{align*}
+with
+\[\left[\begin{matrix}
+    \lambda(T) \\
+    \lambda_y(T)
+\end{matrix}\right] = \left[\begin{matrix}
+    \frac{\partial}{\partial x}\left[\phi(x)+\nu^\top(y-I)\right] \\[2mm]
+    \frac{\partial}{\partial y}\left[\phi(y)+\nu^\top(y-I)\right]
+\end{matrix}\right] = \left[\begin{matrix}
+    \left.\frac{\partial\phi}{\partial x}\right|_{T} \\[2mm]
+    \nu(T)
+\end{matrix}\right]\]
+We use the fact that $y(T) = I$ to solve for $\nu$.
+
+\noindent
+\underline{Example: Dido's Problem}\\[2mm]
+Consider some beach where we want to claim an area of land on the beach
+using just a single rope connecting two points along the shore (axis dividing ocean from land).
+How do we obtain the most amount of land using a rope with a fixed length $T$?
+
+\noindent
+Let the equation modeling the position of the rope on the land $y$ with respect to the shore $x$
+to be $y(x)$. No matter how the rope is laid out, we can always mark a middle point between the
+two ends of the rope. Let us consider that as the origin so that the rope's ends are at points
+$x = -a$ and $x = a$.
+
+\noindent
+We consider a small portion of the rope $d\ell$. $d\ell$ is made up of two component parts:
+$dx$ and $dy$, which is the change in the $x$ position and the $y$ position along this portion.
+This forms a right triangle, so we know that $d\ell^2 = dx^2 + dy^2$. We see then that
+$dy/dx = \tan\theta$, which is the change in the rope's position depending on the point
+along the shore. This is our state equation for the system.
+
+\noindent
+To set up the problem, we let
+\begin{itemize}
+    \item $x$: independent variable
+    \item $y$: state
+    \item $\theta$: control
+\end{itemize}
+We want to maximize the amount of area, which is modeled by
+\[J = \int_{-a}^{a}y(x)dx\]
+Recall, however, that the rope is a fixed length $T$. So then it must hold that
+\[T = \int_{-a}^{a}d\ell(x) = \int_{-a}^{a}\sqrt{dx^2+dy^2} =
+\int_{-a}^{a}\sqrt{1+\left(\frac{dy}{dx}\right)^2}dx = \int_{-a}^{a}\frac{dx}{\cos\theta}\]
+which is our integral constraint. We constructed this due to the fact that $d\ell$ is
+a small portion of the length of our rope, so the sum across the ends of the rope of those
+small portion lengths (the integral) will produce the total length. Let
+\[p(x) = \int_{-a}^{x}\frac{1}{\cos\theta}dx\]
+measure the current length of the rope at point $x$ from the starting point. We produce
+boundary conditions $p(-a) = 0$ and $p(a) = T$.
+
+\noindent
+The Hamiltonian is
+\[H = y + \lambda\tan\theta + \lambda_p\frac{1}{\cos\theta}\]
+The optimality condition is
+\[\frac{\partial H}{\partial \theta} = 0 = \frac{\lambda}{\cos^2\theta}
++ \frac{\lambda_p\sin\theta}{\cos^2\theta} \rightarrow \lambda(x) = -\lambda_p\sin(\theta(x))\]
+The Euler-Lagrangian yields
+\begin{align*}
+    \dot{\lambda} &= -\frac{\partial H}{\partial y} = -1 \\
+    \dot{\lambda}_y &= 0
+\end{align*}
+From these differential equations, we see that
+\[\lambda(x) = c - x\]
+\[\lambda_p = c'\]
+where $c, c'$ are constants. Plugging back into the result of our optimality condition we get
+\[\lambda(x) = -\lambda_p\sin\theta\]
+\[c - x = -c'\sin\theta\]
+\[\sin\theta = \frac{c-x}{c'}\]
+This is not enough information to plug back into our state equation just yet. Let us
+make use of the fact that the Hamiltonian is constant. We see that
+\[H = y - \lambda_p\sin\theta\tan\theta + \lambda_p\frac{1}{\cos\theta}
+= y + \lambda_p\frac{1-\sin^2\theta}{\cos\theta} = y + \lambda_p\cos\theta\]
+Then,
+\[y - H  = -\lambda_p\cos\theta\]
+\[x - c =  -\lambda = \lambda_p\sin\theta\]
+We see that
+\[(y-H)^2 + (x-c)^2 = \lambda_p^2\cos^2\theta + \lambda_p^2\sin^2\theta = \lambda_p^2\]
+which eliminates $\theta$. This is a circle centered at the point $(c, H)$ with radius $\lambda_p$.
+How do we solve for $H$ and $c$? Recall our boundary conditions:
+\[y(-a) = 0, \quad y(a) = 0\]
+\[p(-a) = 0, \quad p(a) = T\]
+For the rope length, we get
+\[T = \int_{-a}^{a}\frac{dx}{\cos\theta} = \int_{-a}^{a}\frac{dx}{d\theta}\frac{1}{\cos\theta}d\theta
+= \int_{-a}^{a}\lambda_p d\theta = \lambda_p(\theta(a)-\theta(-a))\]
+We get this because $x = c + \lambda_p\sin\theta$ so $dx/d\theta = \lambda_p\cos\theta$.
+Using the boundary conditions:
+\[y(-a) = 0 = H - \lambda_p\cos(\theta(-a))\]
+\[y(a) = 0 = H - \lambda_p\cos(\theta(a))\]
+Then,
+\[H - \lambda_p\cos(\theta(-a)) = H - \lambda_p\cos(\theta(a))\]
+\[\cos(\theta(-a)) = \cos(\theta(a))\]
+\[-\theta(-a) = \theta(a) = \theta_0\]
+since $\cos(-\theta) = -\cos\theta$. This means the angle at the start and end of the rope
+are the same. Now, we solve for $c$:
+\[x = -a \rightarrow c + \lambda_p\sin(\theta(-a)) = -a = c - \lambda_p\sin\theta_0\]
+\[x = a \rightarrow c + \lambda_p\sin(\theta(a)) = a = c + \lambda_p\sin\theta_0\]
+Then,
+\[-c + \lambda_p\sin\theta_0 = c + \lambda_p\sin\theta_0\]
+\[-c = c\]
+\[c = 0\]
+we have solved for $c$. To solve for $H$, we saw earlier that
+\[y(a) = 0 = H - \lambda_p\cos\theta_0\]
+So,
+\[H = \lambda_p\cos\theta_0\]
+We then solve for $T$:
+\[T = \lambda_p(\theta_0 - (-\theta_0)) = \lambda_p 2\theta_0\]
+Finally, we need to solve for $\lambda_p$. We see that
+\[\lambda_p = \frac{T}{2\theta_0} \rightarrow H = \frac{T\cos\theta_0}{2\theta_0}\]
+\[x = a = c + \lambda_p\sin\theta_0 = \lambda_p\sin\theta_0 \rightarrow \lambda_p
+= \frac{a}{\sin\theta_0}\]
+Then,
+\[\frac{T}{2\theta_0} = \frac{a}{\sin\theta_0} \rightarrow
+\frac{\sin\theta_0}{\theta_0} = \frac{2a}{T}\]
+In order for the solution to exist, it must hold that $2a < T$.
+
+\subsection{Equality Constraints}
+
+\subsubsection{Equality Constraints on Control}
+
+\noindent
+Let there be some equality constraint $C(u) = 0$. We can adjoin the original problem
+with a time-varying Lagrange multiplier:
+\[H(x,u,\lambda,\mu) = L(x,u) + \lambda^\top f(x,u) + \mu^\top C(u)\]
+Our constraint will only impact the optimality condition, forcing the control variable
+to meet the equality constraint.
+
+\noindent
+\underline{Example:}\\[2mm]
+Consider the problem of going from location $A$ to destination $B$ in minimum time.
+We control the direction of movement (a vector) with $\hat{u}$, which is a unit vector
+representing the unit direction in 3-D space.
+
+\noindent
+Our system is
+\[\dot{r} = \hat{u}\]
+with condition
+\[\hat{u}^\top\hat{u} = 1\]
+We then can say that
+\[C(u) = \frac{1}{2}(\hat{u}^\top\hat{u} - 1)\]
+The minimum time problem has performance index
+\[J = \int_{0}^{T}dt = T\]
+The Hamiltonian is
+\[H = 1 + \lambda^\top u + \mu\frac{1}{2}(u^\top u - 1)\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = 0 = \lambda + \mu u
+\rightarrow u(t) = -\frac{\lambda(t)}{\mu(t)}\]
+Looking back at our condition:
+\[\|u\|^2 = 1 \rightarrow \frac{\|\lambda\|^2}{\mu^2} = 1 \rightarrow \mu = \pm\|\lambda\|\]
+Then,
+\[u = \mp\frac{\lambda}{\|\lambda\|}\]
+The Euler-Lagrangian yields
+\[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right)^\top = 0\]
+which means $\lambda(t) = \text{constant}$.
+The state equation is
+\[\dot{r} = \hat{u} = \mp\frac{\lambda}{\|\lambda\|} = \hat{u}_0\]
+\[r(t) - r(0) = (t - 0)\hat{u}_0\]
+\[r(t) = r(0) + t\hat{u}_0\]
+\[r(T) = r(0) + T\hat{u}_0\]
+\[r_B = r_A + T\hat{u}_0\]
+\[\hat{u}_0 = \frac{r_B-r_A}{T} = \frac{\lambda}{\|\lambda\|}\]
+Then, $T = \|r_B-r_A\|$, so
+\[u = \frac{r_B-r_A}{\|r_B-r_A\|}\]
+solves our minimum time problem.
+
+\subsubsection{Equality Constraints on State and Control}
+
+\noindent
+Let there exist some condition $C(x,u,t)$ such that $C(x,u,t) = 0, \forall t\in[0,T]$.
+We see that this is a scalar value, so our Lagrange multiplier will also be a scalar.
+We adjoin the constraint to the original problem as before. Our Hamiltonian becomes
+\[H = L + \lambda^\top f + \mu C\]
+The big difference from just a constraint on control is that the Euler-Lagrangian also changes.
+We see that
+\[\dot{\lambda} = -\left(\frac{\partial L}{\partial x}\right)^\top
+- \left(\frac{\partial f}{\partial x}\right)^\top \lambda -
+\mu\left(\frac{\partial C}{\partial x}\right)^\top\]
+
+\noindent
+\underline{Example:}\\[2mm]
+Consider the dynamics
+\[\dot{x} = u, \quad x(0) = x_0\]
+Find for fixed $T$ the control $u$ such that
+\[J = \frac{1}{2}\int_{0}^{T}\|u\|^2 dt\]
+is minimal following the constraint $a^\top(x+u) = 0$.
+The Hamiltonian is
+\[H = \frac{1}{2}u^\top u + \lambda^\top u + \mu a^\top(x+u)\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = 0 = u + \lambda + \mu a \rightarrow u(t) = -\lambda(t) - \mu(t) a\]
+The Euler-Lagrangian yields
+\[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right)^\top = -\mu a\]
+\[\lambda(T) = 0\]
+The state equation is
+\[\dot{x} = u = -\lambda - \mu a\]
+Plugging back into our condition:
+\[a^\top x = -a^\top u = -a^\top\dot{x}\]
+Then,
+\[(a^\top x)(t) = e^{-t}(a^\top x)(0)\]
+\[a^\top x(t) = e^{-t}a^\top x(0)\]
+Looking at the Lagrangian,
+\[\lambda(t) = \lambda(0) - \int_{0}^{t}\mu(\tau)d\tau\]
+Then,
+\[\lambda(T) = \lambda(0) - \int_{0}^{T}\mu(\tau)d\tau\]
+\[\lambda(t) = \int_{t}^{T}\mu(\tau)d\tau\]
+Plugging back into the control input:
+\[u(t) = -a\int_{t}^{T}\mu(\tau)d\tau - a\mu(t)\]
+Let
+\[m(t) = \int_{0}^{t}\mu(\tau)d\tau\]
+Then,
+\[u(t) = am(t) - am(T) - a\mu(t)\]
+\[\dot{x} = am(t) - am(T) - a\mu(t)\]
+\[x(t) = x_0 - am(T)t - am(t) + a\int_{0}^{t}m(\tau)d\tau\]
+\[a^\top x(t) = a^\top x_0 - a^\top am(T)t - a^\top am(t) + a^\top a\int_{0}^{t}m(\tau)d\tau\]
+The left term is also
+\[a^\top x(t) = e^{-t}a^\top x_0\]
+Differentiate:
+\[-\|a\|^2 m(T) + \|a\|^2[m(t)-\dot{\mu}(t)] = 0\]
+\[m(t) - \dot{\mu}(t) = m(T)\]
+\[m(t) - \ddot{m}(t) = m(T)\]
+Then,
+\[m(t) = A\cosh(t) + B\sinh(t) + E\]
+
+\subsubsection{State Equality Constraints}
+
+\noindent
+Consider the dynamics
+\[\dot{x} = f(x,u,t), \quad x(0) = x_0\]
+Our goal is to find
+\[\min_{u(\cdot)}\phi(x(T)) + \int_{0}^{T}L(x,u)dt\]
+with $T$ fixed. We have a condition on the state
+\[S(x(t)) = 0, \quad \forall t\]
+Yet again, we adjoin it with our original problem. The Hamiltonian becomes
+\[H = L + \lambda^\top f + \mu S\]
+In the end, after looking at the optimality condition, Euler-Lagrangian, and state equations,
+we can also plug things back into the state condition $S(x) = 0$ as a new necessary condition.
+However, since $S(x)$ does not rely on $u$, it doesn't provide additional information about the
+relationship between the control input and the condition. So, compute the Lie derivatives
+\[L_f S, L_f^2 S, \ldots\]
+until we find $u$, and then we set that to 0.
+
+\noindent
+\underline{Example:}\\[2mm]
+Consider the system evolving in $\mathbb{R}^n$ with dynamics
+\[\dot{x} = u, \quad \|u\| = 1\]
+However, the system-state is constrained to a hyper-sphere of radius $R$
+centered at the origin. Consider the states $x_0$ and $x_1$ on this sphere, as initial
+and desired final states, and determine the minimum-time trajectory for this
+state-constrained system.
+
+\noindent
+To set up the problem, we set up our variables:
+\begin{itemize}
+    \item $u$: control
+    \item $x$: state
+    \item $t$: independent
+\end{itemize}
+The equation for an n-dimensional hypersphere with radius $R$ is
+\[x_1^2 + x_2^2 + \cdots + x_n^2 = R^2\]
+Then a point on the hypersphere would be subject to the constraint
+\[x^\top x = R^2\]
+Our constraints then are
+\[C(u) = u^\top u - 1 = 0\]
+\[S(x) = x^\top x - R^2 = 0\]
+But we see that $u$ does not appear here, so we take the Lie derivative:
+\[L_f S(x) = \frac{\partial S}{\partial x}f(x,u) = 2x^\top u\]
+Then, our constraint is
+\[2x^\top u = 0\]
+Our goal is to solve the minimum time problem,
+\[J = \int_{0}^{T}dt = T\]
+Our Hamiltonian is
+\[H = 1 + \lambda^\top u + \mu_1(u^\top u - 1) + \mu_2(2x^\top u)\]
+and terminal condition
+\[\phi = \nu^\top(x-x_1)\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = 0 = \lambda + 2\mu_1 u + 2\mu_2 x
+\rightarrow \lambda = -2\mu_1 u - 2\mu_2 x\]
+The Euler-Lagrangian yields
+\[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right)^\top = -2\mu_2 u\]
+\[\lambda(T) = \left(\frac{\partial\phi}{\partial x}\right)_{t=T}^\top = \nu\]
+We can compare like this:
+\[\dot{\lambda} = -2\dot{\mu_1}u - 2\mu_1\dot{u} - 2\dot{\mu_2}x - 2\mu_2\dot{x}
+= -2\dot{\mu_1}u - 2\mu_1\dot{u} - 2\dot{\mu_2}x - 2\mu_2 u = -2\mu_2 u\]
+So,
+\[\dot{\mu_1}u + \mu_1\dot{u} + \dot{\mu_2}x = 0\]
+\[\frac{d}{dt}(\mu_1 u) + \dot{\mu_2}x = 0\]
+Multiply by $u^\top$ to get
+\[u^\top\frac{d}{dt}(\mu_1 u) + \dot{\mu_2}u^\top x = 0\]
+\[\dot{\mu_1} + \mu_1 u^\top\dot{u} = 0\]
+We know that $u^\top\dot{u} = \frac{d}{dt}(\frac{1}{2}u^\top u) = 0$, so
+\[\dot{\mu_1} = 0 \rightarrow \mu_1 = \text{constant}\]
+Looking back, we see then that
+\[\dot{\mu_2}x = -\dot{\mu_1}u - \mu_1\dot{u} = -\mu_1\ddot{x}\]
+How do we find $\mu_2$? The optimality condition was
+\[\lambda + 2\mu_1 u + 2\mu_2 x = 0\]
+So then
+\[\lambda^\top x + 2\mu_1 u^\top x + 2\mu_2 x^\top x = 0\]
+\[\lambda^\top x + 2\mu_2 R^2 = 0\]
+\[\mu_2 = -\frac{1}{2R^2}\lambda^\top x\]
+Plugging back into the EL:
+\[\dot{\lambda} = -2\mu_2 u = \frac{1}{R^2}\lambda x^\top u = 0\]
+So $\lambda$ is a constant. Then,
+\[\dot{\mu_2} = -\frac{1}{2R^2}\lambda^\top \dot{x} = -\frac{1}{2R^2}\lambda^\top u
+= \frac{1}{R^2}(\mu_1 u + \mu_2 x)^\top u = \frac{1}{R^2}\mu_1 u^\top u +
+\frac{1}{R^2}\mu_2 x^\top u = \frac{\mu_1}{R^2}\]
+\[\mu_2(t) = \frac{\mu_1}{R^2} t + \mu_2(0)\]
+So, then we get
+\[\frac{\mu_1}{R^2} x = -\mu_1\ddot{x}\]
+\[\ddot{x} = -\frac{1}{R^2}x\]
+is our new state equation. So therefore all potential solutions are of the form
+\[x(t) = \frac{A}{R^2}\cos(t) + \frac{B}{R^2}\sin(t)\]
+We want to solve for $A$ and $B$ so that $x(0) = x_0$ and $x(T) = x_1$.
+\[x(0) = \frac{A}{R^2}\cos(0) + \frac{B}{R^2}\sin(0) \rightarrow A = R^2 x_0\]
+\[x(T) = x_0\cos(T) + \frac{B}{R^2}\sin(T) \rightarrow B = \frac{x_1-x_0\cos(T)}{\sin(T)}R^2\]
+So the solution is
+\[x(t) = x_0\cos(t) + \frac{x_1-x_0\cos(T)}{\sin(T)}\sin(t)
+= \frac{x_1\sin(t)+x_0\sin(T)\cos(t)-x_0\cos(T)\sin(t)}{\sin(T)}\]
+\[x(t) = \frac{x_1\sin(t) + x_0\sin(T-t)}{\sin(T)}\]
+We want to find the minimum-time trajectory. To do this, we need to find $T$.
+Let us consider the fact that our trajectory must stay on the hypersphere.
+Then,
+\[x^\top x = \left(\frac{x_1^\top\sin(t) + x_0^\top\sin(T-t)}{\sin(T)}\right)
+\left(\frac{x_1\sin(t) + x_0\sin(T-t)}{\sin(T)}\right) = R^2\]
+\[\frac{x_1^\top x_1\sin^2(t)+2x_1^\top x_0\sin(T-t)\sin(t)+x_0^\top x_0\sin^2(T-t)}
+{\sin^2(T)} = R^2\]
+\[R^2\sin^2(T) = x_1^\top x_1\sin^2(t)+2x_1^\top x_0\sin(T-t)\sin(t)+x_0^\top x_0\sin^2(T-t)\]
+With this, we can then solve for $T$ to then get the optimal trajectory.
+
+\subsection{Inequality Constraints}
+
+\subsubsection{Inequality Constraints on Control}
+
+\noindent
+Consider the dynamics
+\[\dot{x} = f(x,u,t), \quad x(0) = x_0\]
+Our goal is to find
+\[\min_{u(\cdot)}\phi(x(T)) + \int_{0}^{T}L(x,u)dt\]
+for a fixed time $T$ with constraint
+\[C(u,t) \le 0\]
+This could be solved one of two ways. The first solution is to generalize the problem:
+\[\int_{0}^{T}\delta H(u)dt = 0\]
+This is a Pontryagin's maximum/minimum principle (PMP) problem. $\delta H$ is a variation of $H$
+with respect to $u$ taking the constraints into account. To solve the problem we want to find
+a solution
+\[\min_{u\in\mathcal{U}}H(x,u,\lambda,t)\]
+where $\mathcal{U}$ is the admissible set of potential solutions (i.e., ones that satisfy
+the condition). This then becomes a parameter optimization problem.
+
+\noindent
+Another solution method is to adjoin the inequality constraints with Karush–Kuhn–Tucker (KKT)
+multipliers.
+\[H = L + \lambda^\top f + \mu^\top C\]
+If $C_i < 0$, then $\mu_i = 0$ (inactive constraint).
+If $C_i = 0$, then $\mu_i \ge 0$ (active constraint).
+This way, in all cases, $\mu^\top C \equiv 0$.
+
+\noindent
+\underline{Example: (Scalar)}\\[2mm]
+Consider
+\[\dot{x} = g(t)u(t), \quad |u(t)| \le 1\]
+Our goal is to find
+\[\min_{u}\frac{a^2}{2}\|x(T)\|^2 + \frac{1}{2}\int_{0}^{T}u^2 dt\]
+with a fixed $T$. Note that $|u(t)| \le 1$ is two constraints:
+\[u-1 \le 0\]
+\[-1-u \le 0\]
+Then,
+\[H = \frac{1}{2}u^2 + \lambda gu + \mu_1(u-1) + \mu_2(-1-u)\]
+\[\phi = \frac{a^2}{2}x^2\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = 0 = u + g\lambda + \mu_1 - \mu_2 \rightarrow
+u(t) = -g(t)\lambda - \mu_1 + \mu_2\]
+The Euler-Lagrangian yields
+\[\dot{\lambda} = 0\]
+\[\lambda(T) = \left.\frac{\partial\phi}{\partial x}\right|_{T} = a^2 x(T)\]
+So,
+\[\lambda(t) = a^2 x(T)\]
+\[u = -g(t)a^2 x(T) - \mu_1 - \mu_2\]
+The state equation is then
+\[\dot{x} = -g^2(t)a^2 x(T) - \mu_1g(t) - \mu_2g(t)\]
+We then consider the inactive and active cases:
+\begin{itemize}
+    \item no active constraints ($\mu_1 = \mu_2 = 0$)
+    \[\dot{x} = -a^2 g^2(t)x(T)\]
+    \[x(t_b) - x(t_a) = -a^2x(T)\int_{t_a}^{t_b}g^2(t)dt\]
+    \item $u(t) \equiv 1$ ($\mu_1 \ge 0, \mu_2 = 0$)
+    \[\dot{x} = g(t)\]
+    comes from $\dot{x} = g(t)u(t)$
+    \item $u(t) \equiv -1$ ($\mu_1 = 0, \mu_2 \ge 0$)
+    \[\dot{x} = -g(t)\]
+    comes from $\dot{x} = g(t)u(t)$
+\end{itemize}
+We can also derive the solution using PMP.
+\[H = \frac{1}{2}u^2 + \lambda gu\]
+with Euler-Lagrangian
+\[\dot{\lambda} = 0, \quad \lambda(T) = a^2x(T)\]
+\[\lambda(t) = a^2x(T)\]
+Then,
+\[H = \frac{1}{2}u^2 + a^2x(T)gu\]
+PMP:
+\[\min_{-1 \le u \le 1}H \rightarrow u(t) = -a^2x(T)g(t)\]
+Thus,
+\begin{align*}
+    -1 < a^2x(T)g(t) < 1 &\rightarrow u(t) = -a^2x(T)g(t) \\
+    a^2x(T)g(t) > 1 &\rightarrow u(t) = -1 \\
+    a^2x(T)g(t) < -1 &\rightarrow u(t) = 1
+\end{align*}
+With KKT conditions, we have to assume that they are differentiable. With PMP,
+we do not need to make this assumption.
+
+\noindent
+\underline{Special Case:}\\[2mm]
+Consider the system
+\[\dot{x} = f(x) + g(x)u = Ax + bu\]
+with constraint $|u| \le 1$. We want to solve the minimum time problem
+\[\min_{T,u}\int_{0}^{T}dt \quad \text{such that} \quad \dot{x} = Ax + bu\]
+with $x_0 \rightarrow x_f$ specified. Assume $(A,b)$ is reachable.
+\[H = 1 + \lambda^\top(Ax + bu)\]
+\[\psi = \nu^\top (x-x_f)\]
+The Euler-Lagrangian yields
+\[\dot{\lambda} = -A^\top \lambda, \quad \lambda(T) = \nu\]
+Then,
+\[\lambda(t) = e^{-A^\top(T-t)}\nu\]
+With PMP, we look for
+\[\min_{u}(\lambda^\top b)u\]
+Then,
+\[u = \begin{cases}
+    -1, & \lambda^\top b > 0 \\
+    +1, & \lambda^\top b < 0 \\
+    \text{free}, & \lambda^\top b \equiv 0
+\end{cases}\]
+This is a bang-bang controller (input instantly flips between -1 and 1).
+
+\noindent
+Transversality Condition:
+\[\left(H + \frac{\partial\Psi}{\partial t}\right)_{T} = 0\]
+\[1 + \lambda^\top(T)Ax(T) + \lambda^\top(T)bu(T) = 0\]
+And then the rest of the problem generally is solved through the use of geometric insight.
+
+\noindent
+\underline{Example: Double Integrator}
+\[\dot{x} = v\]
+\[\dot{v} = u\]
+with condition $|u| \le 1$. Our goal is to find
+\[\min_{|u| \le 1}T\]
+with boundary conditions
+\[x(0) = x_0 \rightarrow x(T) = 0\]
+\[v(0) = v_0 \rightarrow v(T) = 0\]
+Then,
+\[H = \lambda_x v + \lambda_v u\]
+\[\Psi(x,t) = t + \nu_1(x-0) + \nu_2(v-0)\]
+The Euler-Lagrangian yields
+\[\dot{\lambda_x} = -\left(\frac{\partial H}{\partial x}\right) = 0,
+\quad \lambda_x(T) = \left.\frac{\partial\Psi}{\partial x}\right|_{T} = \nu_1\]
+\[\dot{\lambda_v} = -\left(\frac{\partial H}{\partial v}\right) = -\lambda_x,
+\quad \lambda_v(T) = \left.\frac{\partial\Psi}{\partial v}\right|_{T} = \nu_2\]
+So,
+\[\lambda_x(t) = \nu_1\]
+\[\lambda_v(T)-\lambda_v(t) = -\nu_1\int_{t}^{T}dt = -\nu_1(T-t)
+\rightarrow \lambda_v(t) = \nu_2 + \nu_1(T-t)\]
+Transversality condition:
+\[\lambda_x(T)v(T) + \lambda_v(T)u(T) + \left.\frac{\partial\Psi}{\partial t}\right|_{T} = 0\]
+\[\nu_1 v(T) + \nu_2 u(T) + 1 = 0\]
+Since $v(T) = 0$, we get
+\[u(T)\nu_2 = -1\]
+Optimality condition (PMP):
+\[\min_{|u| \le 1}\lambda_v(t) u\]
+We see then that the optimal solution is
+\[u(t) = \begin{cases}
+    -1, & \lambda_v(t) > 0 \\
+    +1, & \lambda_v(t) < 0
+\end{cases}\]
+which is a bang-bang controller with $\lambda_v(t)$ being the \textit{switching function}.
+\noindent
+Consider some interval for which $u(\cdot) = -1$,
+\[\dot{v} = -1 \rightarrow v(t) = T-t\]
+\[\dot{x} = v \rightarrow x(t) = -\frac{1}{2}(T-t)^2\]
+Then,
+\[x(t) = -\frac{1}{2}v^2(t)\]
+For an interval for which $u(\cdot) = 1$,
+\[x(t) = \frac{1}{2}v^2(t)\]
+
+\subsubsection{Inequalities on State and Control}
+
+\noindent
+We introduce the constraint
+\[C(x,u,t) \le 0\]
+First method: adjoin the constraint with a KKT multiplier:
+\[H = L + \lambda^\top f + \mu^\top C\]
+\[\min_{u}\int_{0}^{T}L(x,u)dt\]
+\[\dot{x} = f(x,u)\]
+and $\mu$ is a function of time. $C$ should be smooth (infinitely differentiable).
+
+\noindent
+The second method is to use the PMP:
+\[H = L + \lambda^\top f\]
+For each $x,\lambda,t$ find
+\[\min_{u\in\mathcal{U}}H(x,u,\lambda,t)\]
+where $\mathcal{U}$ is the admissible set of control inputs. This is valid
+even if $C$ is discontinuous or not differentiable.
+
+\subsubsection{Inequalities on State Only}
+
+\noindent
+Consider the constraint
+\[S(x) \le 0, \quad \forall t\]
+First, we solve the optimal control problem for $S(x) < 0$ (inactive constraint).
+If the solution satisfies the condition, then we are done. Otherwise, we look at
+where $S(x) \equiv 0$ in some interval. It must hold that
+\[\frac{d}{dt}S(x(t)) = \frac{\partial S}{\partial x}\dot{x} \equiv 0\]
+over that interval. If $u$ does not appear, we keep differentiating.
+
+\noindent
+\underline{Example:}\\[2mm]
+Determine the minimal energy control for the system with dynamics
+\[\dot{x} = 1 + u,\]
+and initial condition $0 \le x_0 \le 1$.  The end condition at time $T = 1$ is free,
+but the state is constrained by $|x| < r$ for some $1 < r$.
+
+\noindent
+The performance index for minimal energy is
+\[J = \frac{1}{2}\int_{0}^{1}u^2 dt\]
+The state condition is
+\[S(x) = |x| - r = x^2 - r^2\]
+The Hamiltonian is
+\[H = \frac{1}{2}u^2 + \lambda(1 + u)\]
+The Euler-Lagrangian yields
+\[\dot{\lambda} = 0, \quad \lambda(T) = 0\]
+Then, $\lambda = 0$. So then,
+\[H = \frac{1}{2}u^2\]
+Using PMP:
+\[\min_{u} H \rightarrow u = 0\]
+Does this work? When the constraint is inactive, the solution is
+\[\frac{dx}{dt} = 1 \rightarrow x(t) = x_0 + t\]
+Check $S(x(1))$:
+\[S(x(1)) = (x_0 + 1)^2 - r^2 < 0\]
+\[x_0 + 1 < r \rightarrow x_0 < r - 1\]
+which is not always true, so this solution is not good.
+
+\noindent
+Find the control across the interval where the constraint is active:
+\[L_f S = \frac{\partial S}{\partial x}\dot{x} = 2x(1+u) = 0\]
+Then,
+\[1 + u = 0\]
+\[u = -1\]
+across this interval. Analytically, we see that our control should be
+to use $u = 0$ until we are about to reach $x = r$ and then switch to $u = -1$
+immediately. So, we can say that the control should be
+\[u(t) = \begin{cases}
+    0, & 0 \le t < \tau \\
+    -1, & \tau \le t \le 1
+\end{cases}\]
+Then, we solve for $\tau$. We should switch at the point where
+\[x(\tau) = x_0 + \tau = r \rightarrow \tau = r - x_0\]
+So, our optimal control is
+\[u(t) = \begin{cases}
+    0, & 0 \le t < r - x_0 \\
+    -1, & r - x_0 \le t \le 1
+\end{cases}\]
+
+\section{Optimal Feedback Control}
+
+\subsection{Principle of Optimality}
+
+\noindent
+A question: is it possible for optimal trajectories to intersect?
+
+\noindent
+The answer is \textbf{no}. An optimal trajectory implies uniqueness.
+If two trajectories intersect, then if our starting point begins on that intersection,
+we have two options to choose from for the trajectory. A well proposed
+problem (that can be solved optimally) should only have one unique solution,
+so this should not be able to happen.
+
+\subsection{Hamiltonian-Jacobi-Bellman}
+
+\noindent
+Consider a problem with a terminal manifold $\psi(x,t) = 0$. Points along the terminal
+manifold have ``parking fees'' (final cost) $\phi(x(T),T)$. We define the value function,
+or ``cost-to-go'' to be
+\[J^*(x,t) = \min_{u(\cdot)}\left\{\phi + \int Ldt\right\}\]
+with boundary condition
+\[J^*(x,t) = \phi(x,t) \quad \text{on} \quad \psi(x,t) = 0\]
+For this, we set up a PDE known as the Hamiltonian-Jacobi-Bellman Equation:
+\[-\frac{\partial J^*}{\partial t} = \min_{u}\left\{L_o + \frac{\partial J^*}{\partial x}f_o\right\}
+= H^o\left(x,u,\frac{\partial J^*}{\partial x},t\right)\]
+\underline{Example:}\\[2mm]
+Consider the dynamics
+\[\dot{x} = Fx + Gu\]
+with the goal to find
+\[\min \frac{1}{2}\int u^\top Pu\text{ }dt\]
+with $P = P^\top > 0$. We want to go from $x_0 \rightarrow x_f$ in fixed time $T$.
+
+\noindent
+We use HJB:
+\[-\frac{\partial J^*}{\partial t} = \min_{u}\left\{\frac{1}{2}u^\top Pu
++ \frac{\partial J^*}{\partial x}(Fx+Gu)\right\}\]
+where
+\[J^*(x,t) = \phi(x,t) + \nu^\top(x-x_f) = \nu^\top(x-x_f)\]
+The optimality condition is
+\[\frac{\partial H}{\partial u} = Pu + G^\top\left(\frac{\partial J^*}{\partial x}\right)^\top
+= 0 \rightarrow u = -P^{-1}G\left(\frac{\partial J^*}{\partial x}\right)^\top\]
+Then we can get our optimal Hamiltonian:
+\[H^o = \frac{1}{2}\left(\frac{\partial J^*}{\partial x}\right)G^{-1}PP^{-1}G^\top
+\left(\frac{\partial J^*}{\partial x}\right)^\top + \frac{\partial J^*}{\partial x}Fx
+- \frac{\partial J^*}{\partial x}GP^{-1}G^\top\left(\frac{\partial J^*}{\partial x}\right)^\top\]
+\[= -\frac{1}{2}\left(\frac{\partial J^*}{\partial x}\right)GP^{-1}
+G^\top\left(\frac{\partial J^*}{\partial x}\right)^\top + \frac{\partial J^*}{\partial x}Fx\]
+This is a nonlinear PDE, so we cannot find a direct solution. We want to find a solution
+of the form
+\[\hat{J}^*(x,t) = \frac{1}{2}x^\top S(t)x + \frac{1}{2}\nu^\top Q(t)\nu + x^\top R(t)\nu\]
+where $S(t) = S^\top(t)$ and $Q(t) = Q^\top(t)$ without loss of generality.
+\[-\frac{\partial\hat{J}^*}{\partial t} = -\frac{1}{2}x^\top\dot{S}x
+- \frac{1}{2}\nu^\top\dot{Q}\nu - x^\top\dot{R}\nu\]
+\[\left(\frac{\partial\hat{J}^*}{\partial x}\right)^\top = Sx + R\nu\]
+Through some additional calculations, we derive that
+\[\dot{S} = SGP^{-1}G^\top S - SF - F^\top S\]
+\[\dot{Q} = R^\top GP^{-1}G^\top R\]
+\[\dot{R} = (F-GP^{-1}G^\top S)^\top R\]
+To solve this, we first need $S(T) = S_f$ to be known. Then, we can solve for $S$,
+plug that result in to find $R$, and then solve for $Q$ using that result.
+
+\section{Linear Systems with Quadratic Performance Index}
+
+\subsection{Terminal Controllers with Soft Constraints}
+
+\noindent
+Consider the system
+\[\dot{x}(t) = F(t)x(t) + G(t)u(t), \quad x(t_0) = x_0\]
+Our goal is to drive the state to the equilibrium $x = 0$ in finite time,
+but without too much cost. This problem has the performance index
+\[J = \frac{1}{2}x^\top(T)S_f x(T) + \frac{1}{2}\int_{0}^{T}x^\top Ax + u^\top Bu\text{ d}t\]
+with $A \ge 0, B > 0, S_f \ge 0$.
+Even if the system $(F,G)$ were reachable, it may not be best to reach the equilibrium
+exactly due to high costs, so we tolerate a neighborhood of $x = 0$ through the parking fee
+and rely on a soft constraint of $x(T) \approx 0$.
+
+\noindent
+The Hamiltonian for the optimal control problem is
+\[H = \frac{1}{2}x^\top Ax + \frac{1}{2}u^\top Bu + \lambda^\top(Fx+Gu)\]
+\underline{O.C.}
+\[\frac{\partial H}{\partial u} = Bu + G\top\lambda = 0 \rightarrow u = -B^{-1}G^\top\lambda\]
+\underline{E.L.}
+\[\dot{\lambda} = -\left(\frac{\partial H}{\partial x}\right)^\top = -Ax-F^\top\lambda\]
+\underline{S.E.}
+\[\dot{x} = Fx - GB^{-1}G^\top\lambda\]
+\underline{B.C.}
+\[x(0) = x_0\]
+\[\lambda(T) = \left.\left(\frac{\partial\phi}{\partial x}\right)^\top\right|_{T} = S_f x(T)\]
+As you can see, this leaves us with two coupled PDEs for $x$ and $\lambda$. We have solved coupled
+PDEs like this before, by putting it into a matrix form:
+\[\left[\begin{matrix}
+    \dot{x} \\ \dot{\lambda}
+\end{matrix}\right] = \left[\begin{matrix}
+    F & -GB^{-1}G^\top \\
+    -A & -F^\top
+\end{matrix}\right]\left[\begin{matrix}
+    x \\ \lambda
+\end{matrix}\right]\]
+We call this the Hamiltonian system. If we assume that $\lambda(0)$ is known, then
+we can write the solution as a transition function matrix:
+\[\left[\begin{matrix}
+    x(t) \\ \lambda(t)
+\end{matrix}\right] = \Psi(t, 0)\left[\begin{matrix}
+    x(0) \\ \lambda(0)
+\end{matrix}\right]\]
+with
+\[\Psi(t, 0) = \left[\begin{matrix}
+    \psi_{11} & \psi_{12} \\
+    \psi_{21} & \psi_{22}
+\end{matrix}\right]\]
+Then,
+\[x(T) = \psi_{11}(T)x(0) + \psi_{12}(T)\lambda(0)\]
+\[\lambda(T) = \psi_{21}(T)x(0) + \psi_{22}(T)\lambda(0) \implies
+\lambda(0) = \psi_{22}^{-1}(T)\left[S_f x(T) - \psi_{21}(T)x_0\right]\]
+\[x(T) = \psi_{11}(T)x(0) + \psi_{12}(T)\psi_{22}^{-1}(T)\left[S_f x(T) - \psi_{21}(T)x_0\right]\]
+\[\left[I - \psi_{12}(T)\psi_{22}^{-1}(T)S_f\right]x(T) = \left[\psi_{11}(T)
+- \psi_{12}(T)\psi_{22}^{-1}(T)\psi_{21}(T)\right]x_0\]
+is our solution for the optimal trajectory under these conditions. But what if
+we do not know $\lambda(0)$, such is the case for almost all optimal control problems?
+
+\subsubsection{Riccati Equation}
+
+\noindent
+Since $\lambda(T) = S_f x(T)$, let $\lambda(t) = S(t)x(t)$. Then,
+\[\dot{\lambda}(t) = \dot{S}(t)x(t) + S(t)\dot{x}(t)\]
+Plugging in our Hamiltonian system, we get:
+\[-Ax - F^\top\lambda = \dot{S}x + S(Fx-GB^{-1}G^\top\lambda)\]
+Since $\lambda = Sx$:
+\[-Ax - F^\top Sx = \dot{S}x + S(Fx-GB^{-1}G^\top Sx)\]
+\[\left[-A-F^\top S-\dot{S}-SF+SGB^{-1}G^\top S\right]x = 0\]
+Since $x$ is arbitrary, we cannot rely on $x = 0$ as the enforcement to this rule.
+So,
+\[-A-F^\top S-\dot{S}-SF+SGB^{-1}G^\top S = 0\]
+\[\dot{S} = -A-F^\top S+SGB^{-1}G^\top S\]
+is a PDE for finding a valid $S(t)$ such that $S(T) = S_f$.
+This is known as the Riccati Equation. Under this, the closed-loop state equation is
+\[\dot{x} = Fx - GB^{-1}G^\top Sx = \left[F-GB^{-1}G^\top S\right]x\]
+Consider
+\[\int_{0}^{T}\frac{d}{dt}\left[x^\top(t)S(t)x(t)\right]dt = x^\top(T)S(T)x(T)-x^\top(0)S(0)x(0)\]
+\[= \int_{0}^{T}\left[\dot{x}^\top Sx + x^\top\dot{S}x + x^\top S\dot{x}\right]dt\]
+The first term yields
+\[\int_{0}^{T}\dot{x}^\top Sx\text{ d}t = \int_{0}^{T}x^\top(F^\top SGB^{-1}G^\top)Sx\text{ d}t\]
+The second term yields
+\[\int_{0}^{T}\dot{x}^\top \dot{S}x\text{ d}t =
+\int_{0}^{T}x^\top[-A-F^\top S-SF+SGB^{-1}G^\top S]x\text{ d}t\]
+The third term yields
+\[\int_{0}^{T}x^\top S\dot{x}\text{ d}t = \int_{0}^{T}x^\top S(F-GB^{-1}G^\top S)x\text{ d}t\]
+The sum of these terms results in
+\[\int_{0}^{T}x^\top(-SGB^{-1}G^\top S-A)x\text{ d}t = x^\top(T)S_fx(T)-x_0^\top S(0)x_0\]
+\[= -\int_{0}^{T}x^\top Ax\text{ d}t - \int_{0}^{T}x^\top SGB^{-1}BB^{-1}G^\top Sx\text{ d}t\]
+\[= -\int_{0}^{T}x^\top Ax + u^\top Bu\text{ d}t\]
+So,
+\[J^* = x^\top(T)S_fx(T) + \int_{0}^{T}(x^\top Ax + u^\top Bu)\text{ d}t
+= x_0^\top S(0)x_0\]
+This method is also known as the \textbf{sweep method}.
+
+\noindent
+\underline{Example:}
+
+\noindent
+Given the dynamics
+\[\dot{x} = u, \quad x(0) = x_0\]
+compute the optimal trajectory $x(t)$ for the optimal control $u(t)$ that minimizes
+\[\frac{1}{2}cx^2(T) + \frac{1}{2}\int_{0}^{T}u^2(t)\text{ d}t\]
+Looking at this, we find that
+\[F = 0, A = 0, S_f = c, G = 1, B = 1\]
+The Riccati equation therefore yields
+\[\dot{S} = -A-F^\top S+SGB^{-1}G^\top S = S^2\]
+Then,
+\[\frac{dS}{S^2} = dt \rightarrow -\frac{1}{S(t)} + \frac{1}{S(T)} = t-T\]
+\[S(t) = \frac{1}{\frac{1}{c}+T-t}\]
+The feedback law is
+\[u(t) = -B^{-1}G^\top S(t)x(t) = -\frac{1}{\frac{1}{c}+T-t}x(t)\]
+Then, the closed-loop state equation becomes
+\[\dot{x}(t) = \frac{1}{t-T-\frac{1}{c}}x(t)\]
+And we get the optimal trajectory:
+\[\frac{dx}{x} = \frac{d(t-T-\frac{1}{c})}{t-T-\frac{1}{c}}\]
+\[\ln x(t) - \ln x_0 = \ln\left(t-T-\frac{1}{c}\right)-\ln\left(-T-\frac{1}{c}\right)\]
+But, this does not work because of negatives inside the logarithm. So, we multiply
+the numerator and denominator by $-1$:
+\[\frac{dx}{x} = \frac{d(T-t+\frac{1}{c})}{T-t+\frac{1}{c}}\]
+\[\ln x(t) - \ln x_0 = \ln\left(T-t+\frac{1}{c}\right)-\ln\left(T+\frac{1}{c}\right)\]
+\[x(t) = \frac{T-t+\frac{1}{c}}{T+\frac{1}{c}}x_0\]
+Our goal, remember, is to drive $x(T)$ to a neighborhood around $x = 0$ in finite time $T$.
+We see that as $c \rightarrow \infty$, $x(T) \rightarrow 0$, which is the expected behavior.
+
+\subsection{Terminal Controllers with Hard Constraints}
+
+Consider again the same system but this time it is mandatory to reach the (linear) terminal manifold
+$\psi = Mx(T)$ at a fixed final time $T$. Assume that $\psi$ has $p$ components (i.e., $M$ is
+a $p \times n$ matrix).
+\[\phi = \nu^\top\psi = \nu^\top Mx\]
+\[H = \frac{1}{2}(x^\top Ax + u^\top Bu) + \lambda^\top(Fx+Gu)\]
+\underline{O.C.}
+\[\frac{\partial H}{\partial u} = 0 = Bu + G^\top\lambda \rightarrow u = -B^{-1}G^\top\lambda\]
+\underline{E.L.}
+\[\dot{\lambda} = -Ax - F^\top\lambda\]
+\underline{S.E.}
+\[\dot{x} = Fx-GB^{-1}G^\top\lambda\]
+And then we end up with the Hamiltonian system:
+\[\left[\begin{matrix}
+    \dot{x} \\ \dot{\lambda}
+\end{matrix}\right] = \left[\begin{matrix}
+    F & -GB^{-1}G^\top \\
+    -A & -F^\top
+\end{matrix}\right]\left[\begin{matrix}
+    x \\ \lambda
+\end{matrix}\right]\]
+There are $2n$ ODEs and $2n$ boundary conditions (initial state and terminal costate).
+However, there are at least $p$ unknowns from the costates due to the terminal manifold condition
+$(\nu_1,\ldots,\nu_p)$. How do we solve this problem? There are two methods:
+the transition matrix method if $n-p$ terimanl variables are known or the sweep method.
+As with the soft constraint version, the sweep method leads to a cleaner analytical approach,
+so we will postulate a solution of the form:
+\begin{align*}
+    \lambda(t) &= S(t)x(t) + R(t)\nu \\
+    \psi &= U(t)x(t) + Q(t)\nu
+\end{align*}
+with $U(T) = M, Q(T) = 0, R(T) = M^\top, S(T) = 0$ for terminal conditions.
+Then,
+\[\lambda = Sx + R\nu \rightarrow \dot{\lambda} = \dot{S}x + S\dot{x} + \dot{R}\nu\]
+Since $\dot{x} = Fx-GB^{-1}G^\top\lambda$, we subtitute:
+\[-Ax-F^\top(Sx+R\nu) = \dot{S}x + S(Fx-GB^{-1}G^\top(Sx+R\nu)) + \dot{R}\nu\]
+Decouple $x$ and $\nu$:
+\[(-A-F^\top S-\dot{S}-SF+SGB^{-1}G^\top S)x = (F^\top R-SGB^{-1}G^\top R+\dot{R})\nu\]
+We find $\dot{S}$ and $\dot{R}$ such that both sides are rendered to 0 regardless
+of any arbitrary $x$ or $\nu$. This yields:
+\begin{align*}
+    \dot{S} &= -A-F^\top S - SF + SGB^{-1}G^\top S \quad\leftarrow\text{Riccati Equation} \\
+    \dot{R} &= -(F^\top - SGB^{-1}G^\top)R
+\end{align*}
+Differentiation of the $\psi$-equation yields
+\[0 = \dot{U}x + U\dot{x} + \dot{Q}\nu\]
+\[0 = \dot{U}x + U(F-GB^{-1}G^\top S)x - UGB^{-1}G^\top R\nu + \dot{Q}\nu\]
+\[[\dot{U}+U(F-GB^{-1}G^\top S)]x + [\dot{Q}-UGB^{-1}G^\top R]\nu = 0\]
+Then, to render this to zero regardless of $x$ and $\nu$,
+we choose $\dot{Q}$ and $\dot{U}$ such that
+\begin{align*}
+    \dot{U} &= -U(F-GB^{-1}G^\top S) \\
+    \dot{Q} &= UGB^{-1}G^\top R
+\end{align*}
+We see from earlier, then, that $U(t) = R^\top(t)$. So,
+\[\dot{Q} = R^\top GB^{-1}G^\top R\]
+with $Q(T) = 0$ is a reachability Gramian. Then, through the sweep method, we solve
+for $S$ which yields then the solution to $R$ which yields then the solution to $Q$.
+Then, we find $\nu$:
+\[\nu = Q^{-1}(t)[\psi-R^\top(t)x(t)]\]
+Plug this into the state equation:
+\[\dot{x} = (F-GB^{-1}G^\top S)x - GB^{-1}G^\top RQ^{-1}[\psi-R^\top x]\]
+This is a sort of correction term on the manifold, that considers when
+$\nu = 0$. We can say that this is $\hat{\psi}$. So,
+\[\dot{x} = (F-GB^{-1}G^\top S)x - GB^{-1}G^\top RQ^{-1}(\psi-\hat{\psi})\]
+
+\subsection{Regulators}
+
+\noindent
+If $F,G,A,B$ are constant matrices (time-invariant system), then $S(t)$ may approach
+a constant matrix $S_\infty$. The feedback control would be
+\[u(t) = -C(t)x(t)\]
+where $C \rightarrow C_\infty = B^{-1}G^\top S_\infty$.
+
+\noindent
+\underline{Example:}
+
+\noindent
+Consider the spring oscillator system:
+\begin{align*}
+    \dot{x}_1 &= x_2 \\
+    \dot{x}_2 &= -\omega_0^2 x_1 + u
+\end{align*}
+The performance index is
+\[J = \frac{1}{2}\int_{0}^{\infty}(ax_1^2+u^2)\text{ d}t\]
+Then,
+\[A = \left[\begin{matrix}
+    a & 0 \\
+    0 & 0
+\end{matrix}\right], \quad B = 1\]
+\[F = \left[\begin{matrix}
+    0 & 1 \\
+    -\omega_0^2 & 0
+\end{matrix}\right], \quad G = \left[\begin{matrix}
+    0 \\ 1
+\end{matrix}\right]\]
+We consider the solution to the Riccati equation $S(t)$ to be a symmetric matrix
+\[S(t) = \left[\begin{matrix}
+    S_1 & S_x \\
+    S_x & S_2
+\end{matrix}\right]\]
+which satisfies
+\[\dot{S} = -A - F^\top S - SF + SGB^{-1}G^\top S\]
+\[\left[\begin{matrix}
+    \dot{S}_1 & \dot{S}_x \\
+    \dot{S}_x & \dot{S}_2
+\end{matrix}\right] = -\left[\begin{matrix}
+    a & 0 \\
+    0 & 0
+\end{matrix}\right] - \left[\begin{matrix}
+    0 & -\omega_0^2 \\
+    1 & 0
+\end{matrix}\right]\left[\begin{matrix}
+    S_1 & S_x \\
+    S_x & S_2
+\end{matrix}\right] - \left[\begin{matrix}
+    S_1 & S_x \\
+    S_x & S_2
+\end{matrix}\right]\left[\begin{matrix}
+    0 & 1 \\
+    -\omega_0^2 & 0
+\end{matrix}\right] + \left[\begin{matrix}
+    0 & S_x \\
+    0 & S_2
+\end{matrix}\right]\left[\begin{matrix}
+    S_1 & S_x \\
+    S_x & S_2
+\end{matrix}\right]\]
+\[= -\left[\begin{matrix}
+    a & 0 \\
+    0 & 0
+\end{matrix}\right] - \left[\begin{matrix}
+    -S_x\omega_0^2 & -S_2\omega_0^2 \\
+    S_1 & S_x
+\end{matrix}\right] - \left[\begin{matrix}
+    -S_x\omega_0^2 & S_1 \\
+    -S_2\omega_0^2 & S_x
+\end{matrix}\right] + \left[\begin{matrix}
+    S_x^2 & S_xS_2 \\
+    S_xS_2 & S_2^2
+\end{matrix}\right]\]
+\[= \left[\begin{matrix}
+    -a+2S_x\omega_0^2+S_x^2 & -S_1+S_2\omega_0^2+S_xS_2 \\
+    -S_1+S_2\omega_0^2+S_xS_2 & -2S_x+S_2^2
+\end{matrix}\right]\]
+\begin{align*}
+    \dot{S}_1 &= -a+2S_x\omega_0^2+S_x^2 \\
+    \dot{S}_x &= -S_1+S_2\omega_0^2+S_xS_2 \\
+    \dot{S}_2 &= -2S_x+S_2^2
+\end{align*}
+The solution to the algebraic Reiccati equation (ARE) assumes that $S$ is a constant
+(as posed by our problem), and therefore $\dot{S} = 0$ at the steady state (when $S = S_\infty$).
+Using this, we can solve for $S_\infty$ ($S$ at steady state):
+\begin{align*}
+    S_1 &= \sqrt{\omega_0^4+a} \cdot \sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2} \\
+    S_x &= \sqrt{\omega_0^4+a}-\omega_0^2 \\
+    S_2 &= \sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2}
+\end{align*}
+Then, the optimal control is
+\[u = -Cx\]
+with
+\[C = \left[\begin{matrix}
+    0 & 1
+\end{matrix}\right]\left[\begin{matrix}
+    \sqrt{\omega_0^4+a} \cdot \sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2} & \sqrt{\omega_0^4+a}-\omega_0^2 \\
+    \sqrt{\omega_0^4+a}-\omega_0^2 & \sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2}
+\end{matrix}\right]\]
+\[= \left[\begin{matrix}
+    \sqrt{\omega_0^4+a}-\omega_0^2 & \sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2}
+\end{matrix}\right] = \left[\begin{matrix}
+    C_1 & C_2
+\end{matrix}\right]\]
+so then
+\[u = -C_1x_1 - C_2x_2\]
+where $C_1$ and $C_2$ are functions of $a$. The closed-loop system is
+\[\ddot{x} = -\omega_0^2x_1-C_1x_1-C_2\dot{x}_1\]
+Let's find the root locus of the system as a function of $a$:
+\[s^2X(s) = -\omega_0^2X(s)-\left(\sqrt{\omega_0^4+a}-\omega_0^2\right)X(s)
+- sX(s)\sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2}\]
+\[s^2 = -\sqrt{\omega_0^4+a} - s\sqrt{2\sqrt{\omega_0^4+a}-2\omega_0^2}\]
+\[\left(s^2+\sqrt{\omega_0^4+a}\right)^2=2s^2\left[\sqrt{\omega_0^4+a}-\omega_0^2\right]\]
+\[s^4+2s^2\sqrt{\omega_0^4+a}+\omega_0^4+a = 2s^2\sqrt{\omega_0^4+a}-2s^2\omega_0^2\]
+\[s^4+2s^2\omega_0^2+\omega_0^4+a = 0\]
+\[-\frac{1}{a} = \frac{1}{(s^2+\omega_0^2)^2}\]
+So, for the open loop, we have double poles at $\pm j\omega_0$ with zeros going off to infinity.
+\begin{theorem}
+    If the ARE has a positive semi-definite solution, then there exists a unique maximal
+    solution $\tilde{S}$ of the ARE and the control
+    \[u = -B^{-1}G^\top\tilde{S}x\]
+    minimizes the performance index $J$ to the value function $\frac{1}{2}x_0^\top\tilde{S}x_0$.
+\end{theorem}
+Look back at the Hamiltonian system:
+\[\left[\begin{matrix}
+    \dot{x} \\ \dot{\lambda}
+\end{matrix}\right] = \left[\begin{matrix}
+    F & -GB^{-1}G^\top \\
+    -A & -F^\top
+\end{matrix}\right]\left[\begin{matrix}
+    x \\ \lambda
+\end{matrix}\right]\]
+Let
+\[\mathcal{H} = \left[\begin{matrix}
+    F & -GB^{-1}G^\top \\
+    -A & -F^\top
+\end{matrix}\right], \quad J = \left[\begin{matrix}
+    0 & I \\
+    -I & 0
+\end{matrix}\right]\]
+We see that
+\[J\mathcal{H}^\top J^\top = -\mathcal{H}\]
+which makes $\mathcal{H}$ a symplectic matrix. What is special about this is that
+if $s$ is an eigenvalue of $\mathcal{H}$, then so is $-s, \bar{s}, -\bar{s}$.
+\begin{theorem}
+    Stabilizability and Detectability
+    \begin{enumerate}
+        \item If $(F,G)$ is stabilzable, then the ARE has at least one solution $S = S^\top \ge 0$.
+        A system is stable if there exists a feedback control law $u = -Cx$ such that the closed-loop
+        system is stable, including any uncontrollable modes. If a mode is unstable, it must
+        also be controllable.
+        \item If $A = H^\top H$ and $(F,G)$ is detectable, then the ARE has at most one solution
+        $S = S^\top \ge 0$. If $S$ is the solution, then the closed-loop dynamic matrix
+        $F-GB^{-1}G^\top S = F-GC$ is stable.
+    \end{enumerate}
+\end{theorem}
+
+\section{Minimum Integral Square Error}
+
+\subsection{Minimum Integral-Square Error for SISO Systems}
+
+A useful performance specification for the response to impulse disturbances
+is to minimize the integral-square error for a specified amount of integral-square control, i.e.
+\[\min_{u}\int_{0}^{\infty}y(t)^2\text{ d}t\]
+with
+\[\int_{0}^{\infty}u(t)^2\text{ d}t\]
+specified. The open-loop transfer function is then
+\[H(s) = \frac{\hat{y}(s)}{\hat{u}(s)}\]
+This is equivalent to minimizing a weighted sum of the two integrals:
+\[\min_{u}\int_{0}^{\infty}[Ay(t)^2+u(t)^2]\text{ d}t\]
+Using the calculus of variations, we use the control
+\[u(t) = -kx(t)\]
+where $k$ is some constant. The feedback system should have its eigenvalues (roots)
+in the left-half plane. This can be enforced by finding the root-square characteristic
+equation (RSCE):
+\[H(-s)AH(s) + 1 = 0.\]
+The gain vector, $k$, can be obtained by equating like powers of $s^2$ in the identity
+\[H(-s)AH(s) + 1 = [kX(-s)+1][kX(s)+1],\]
+where
+\[\frac{\hat{x}(s)}{\hat{u}(s)} = X(s), \quad H(s) = cX(s),\]
+and $kX(s)+1=0$ is the closed-loop characteristic equation of the system for the given control.
+We define
+\[H(s) = \frac{N(s)}{D(s)}\]
+Then, the root-square locus is
+\[\frac{N(s)}{D(s)}\cdot\frac{N(-s)}{D(-s)} = -\frac{1}{A}\]
+\underline{Example:}
+
+\noindent
+Consider the scalar system
+\[\dot{y} = -by + u \implies \frac{\hat{y}(s)}{\hat{u}(s)} = \frac{1}{s+b}\]
+Then the root-square locus is
+\[\frac{1}{s+b}\cdot\frac{1}{-s+b} = -\frac{1}{A}\]
+Then,
+\[A - (s^2-b^2) = 0 \implies s = \pm\sqrt{b^2+A}\]
+We see that as $A$ increases, the poles move further away from the imaginary axis.
+
+\noindent
+The root-square locus reflects poles and zeros across the imaginary axis, leading
+to double the number of poles and zeros. We select the $0^\circ$ or $180^\circ$
+root locus depending on whichever one has no segments crossing over the imaginary axis.
+In this case, we select the $0^\circ$ root locus since it has pole starting at $-b$
+and going to $-\infty$ as $A$ increases, thus making the system stable.
+
+\noindent
+We note that $A = s^2 - b^2$. The RSCE is factored to give
+\[H(-s)AH(s) + 1 = \frac{A}{-s^2+b^2} + 1 = 0\]
+\[\frac{A}{-s^2+b^2} + 1 \equiv \left(kX(-s) + 1\right)\left(kX(s) + 1\right)\]
+We will simply let $X(s) = H(s) = \frac{1}{s+b}$:
+\[\left(\frac{k}{-s+b}+1\right)\left(\frac{k}{s+b}+1\right) = \frac{A}{-s^2+b^2} + 1\]
+Solving through this (via quadratic formula), we end up with
+\[k = -b \pm \sqrt{b^2+A}\]
+so we can simply select $k = -b + \sqrt{b^2+A}$ as our optimal feedback gain.
+
+\noindent
+\underline{Example 2:}
+
+\noindent
+Consider the undamped harmonic oscillator:
+\begin{align*}
+    \dot{x}_1 &= x_2 \\
+    \dot{x}_2 &= -\omega^2 x_1 + \omega^2 u \\
+    y &= x_1
+\end{align*}
+Then, the open-loop transfer function is
+\[\hat{y}(s) = \hat{x}_1(s)\]
+\[s\hat{x}_1(s) = \hat{x}_2(s)\]
+\[s\hat{x}_2(s) = -\omega^2\hat{x}_1(s)+\omega^2\hat{u}(s)
+\implies \hat{x}_2(s) = \frac{\omega^2}{s}(-\hat{x}_1(s)+\hat{u}(s))\]
+\[s^2\hat{x}_1(s) = -\omega^2\hat{x}_1(s)+\omega^2\hat{u}(s)
+\implies \hat{x}_1(s) = \frac{\omega^2}{s^2+\omega^2}\hat{u}(s) = \hat{y}(s)\]
+\[\frac{\hat{y}(s)}{\hat{u}(s)} = \frac{\omega^2}{s^2+\omega^2}\]
+The RSCE is:
+\[\frac{\omega^2}{(-s)^2+\omega^2}\cdot\frac{\omega^2}{s^2+\omega^2} = -\frac{1}{A}\]
+\[-\frac{1}{A} = \frac{\omega^4}{(s^2+\omega^2)^2}\]
+In Evans's form, the RSCE is
+\[-A\omega^4 = (s^2+\omega^2)^2\]
+The roots are
+\[s^2+\omega^2 = j\omega^2\sqrt{A}\]
+\[s = \pm jw\sqrt{1-j\sqrt{A}}\]
+The RSCE could be factored, but we can also form it through state feedback:
+\[u = -k_1x_1 - k_2x_2\]
+The characteristic equation of the closed-loop system with the above feedback is:
+\[\left|\begin{matrix}
+    s & -1 \\
+    \omega^2(1+k_1) & s+\omega^2k_2
+\end{matrix}\right| = 0\]
+\[s^2 + k_2\omega^2s + \omega^2(1+k_1) = 0\]
+Thus, the RSCE is
+\[[(-s)^2+k_2\omega^2(-s)+\omega^2(1+k_1)][s^2+k_2\omega^2s+\omega^2(1+k_1)] = 0\]
+Through distributing and finding the polynomial for the RSCE and then equating
+like coefficients to the result of the Evans's form, we obtain the optimal feedback gains
+\begin{align*}
+    k_1 &= \sqrt{1+A}-1 \\
+    k_2 &= \frac{\sqrt{2k_1}}{\omega}
+\end{align*}
+
 \end{document}
